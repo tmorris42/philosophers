@@ -18,8 +18,10 @@ fclean: clean
 
 re: fclean all
 
-test:
-	echo "Write some tests"
+norm:
 	norminette $(SRCS)
 
-.PHONY: all clean fclean re test
+test: $(NAME)
+	python3 tests/test.py
+
+.PHONY: all clean fclean re test norm
