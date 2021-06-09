@@ -39,7 +39,10 @@ int	run(int argc, char **argv)
 		printf("Arg #%d = \"%s\"\n", i, argv[i]);
 		value = parse_argument(argv[i]);
 		if (value < 0)
+		{
 			printf("\tInvalid argument\n");
+			return (-1);
+		}
 		else
 			settings[i - 1] = value;
 		++i;
@@ -51,7 +54,7 @@ int	run(int argc, char **argv)
 		printf("Setting %d = %d\n", i + 1, settings[i]);
 		++i;
 	}
-	return (1);
+	return (0);
 }
 
 int	main(int argc, char **argv)
