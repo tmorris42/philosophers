@@ -2,18 +2,24 @@ import os
 import subprocess
 
 def test_error_codes():
-    cmds = [("./philo", -1),
-            ("./philo 1 2 3 4", 0),
-            ("./philo 1 2 3 4 5", 0),
-            ("./philo 1 2 3 test 5", -1),
+    cmds = [
+            ("./philo", -1),
+            ("./philo 2 2 3 4", 0),
+            ("./philo 2 2 3 4 5", 0),
+            ("./philo 2 2 3 test 5", -1),
+            ("./philo 2 -5 2 9", -1),
             ]
 
+
+    print("Testing error codes")
     passed = 0;
     total = 0;
     for cmd in cmds:
         total += 1
-        header = f"Testing {cmd[0]}, expecting [{cmd[1]}]"
-        print(header + "." * (50 - len(header)), end="")
+        header = f"Testing {cmd[0]}"
+        header += " " * (30 - len(header))
+        header += f"expecting [{cmd[1]}]"
+        print(header + "." * (60 - len(header)), end="")
         try:
             result = subprocess.check_output(cmd[0], shell=True, text=True)
             if cmd[1] == 0:
