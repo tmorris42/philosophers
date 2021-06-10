@@ -10,12 +10,26 @@ void	*start_philo(void *p)
 
 	philo = (t_philo *)p;
 
-	printf("Philosopher #%d wants to take forks\n", philo->id);
-	pthread_mutex_lock(philo->taking_forks);
-	printf("Philosopher #%d is taking forks\n", philo->id);
-	printf("Philosopher #%d is about to release the forks\n", philo->id);
-	pthread_mutex_unlock(philo->taking_forks);
-	printf("Philosopher #%d has already released the forks\n", philo->id);
+	while (philo->alive)
+	{
+		printf("Philosopher #%d wants to take forks\n", philo->id);
+		pthread_mutex_lock(philo->taking_forks);
+		if (philo->left_fork->available && philo->right_fork->available)
+		{
+			printf("Philosopher #%d is taking forks\n", philo->id);
+			pthread_mutex_lock(&(philo->left_fork->lock));
+			pthread_mutex_lock(&(philo->right_fork->lock));
+			printf("Philosopher #%d took forks\n", philo->id);
+			pthread_mutex_unlock(philo->taking_forks);
+		}
+		else
+			continue ;
+		printf("Philosopher #%d is about to release the forks\n", philo->id);
+		pthread_mutex_unlock(&(philo->left_fork->lock));
+		pthread_mutex_unlock(&(philo->right_fork->lock));
+		printf("Philosopher #%d has already released the forks\n", philo->id);
+		philo->alive = 0;
+	}
 	pthread_exit(p);
 }
 
@@ -39,6 +53,7 @@ t_philo	*create_philo(int id, t_data *data)
 	else
 		philo->right_fork = &data->forks[data->settings->number_of_philosophers - 1];
 	philo->taking_forks = &(data->taking_forks);
+	philo->alive = 1;
 	return (philo);
 }
 
@@ -183,7 +198,7 @@ int	run(int argc, char **argv)
 		return (-1);
 	}
 
-	data->forks = (pthread_mutex_t *)malloc(sizeof(*data->forks) * data->settings->number_of_philosophers);
+	data->forks = (t_fork *)malloc(sizeof(*data->forks) * data->settings->number_of_philosophers);
 	if (!data->forks)
 	{
 		free_data(&data);
@@ -197,14 +212,16 @@ int	run(int argc, char **argv)
 		++i;
 	}
 
+	// Create Forks
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
 	{
-		if (pthread_mutex_init(&(data->forks[i]), NULL))
+		if (pthread_mutex_init(&(data->forks[i].lock), NULL))
 		{
 			free_data(&data);
 			return (-1);
 		}
+		data->forks[i].available = 1;
 		++i;
 	}
 
