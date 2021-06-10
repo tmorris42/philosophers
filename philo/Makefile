@@ -22,6 +22,6 @@ norm:
 	norminette $(SRCS)
 
 test: $(NAME)
-	python3 tests/test.py
+	@python3 tests/test.py
 
 .PHONY: all clean fclean re test norm

@@ -49,4 +49,4 @@ if __name__ == '__main__':
     passed += new_passed
     total += new_total
 
-    print(f"Score: {passed}/{total}")
+    print(f"\nScore: {passed}/{total}")
