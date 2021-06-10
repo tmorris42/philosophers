@@ -19,13 +19,13 @@ void	*start_philo(void *p)
 	pthread_exit(p);
 }
 
-t_philo	*create_philo(int id, pthread_mutex_t *forks, t_data *data)
+t_philo	*create_philo(int id, t_data *data)
 {
 	t_philo	*philo;
 
 	if (!data)
 		return (NULL);
-	if (!forks)
+	if (!data->forks)
 		printf("No forks!\n");
 
 	philo = (t_philo *)malloc(sizeof(*philo));
@@ -33,8 +33,11 @@ t_philo	*create_philo(int id, pthread_mutex_t *forks, t_data *data)
 		return (NULL);
 
 	philo->id = id;
-	philo->left_fork = NULL;
-	philo->right_fork = NULL;
+	philo->left_fork = &data->forks[id];
+	if (id)
+		philo->right_fork = &data->forks[id - 1];
+	else
+		philo->right_fork = &data->forks[data->settings->number_of_philosophers - 1];
 	philo->taking_forks = &(data->taking_forks);
 	return (philo);
 }
@@ -111,6 +114,16 @@ void	free_data(t_data **data_ptr)
 		}
 	}
 	free(data->philos);
+/*	if (data->forks && data->settings)
+	{
+		i = 0;
+		while (i < data->settings->number_of_philosophers)
+		{
+			free(data->forks[i]);
+			data->forks[i] = NULL;
+			++i;
+		}
+	} */
 	free(data->forks);
 	free(data->settings);
 	free(data);
@@ -169,6 +182,14 @@ int	run(int argc, char **argv)
 		free_data(&data);
 		return (-1);
 	}
+
+	data->forks = (pthread_mutex_t *)malloc(sizeof(*data->forks) * data->settings->number_of_philosophers);
+	if (!data->forks)
+	{
+		free_data(&data);
+		return (-1);
+	}
+
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
 	{
@@ -179,7 +200,19 @@ int	run(int argc, char **argv)
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
 	{
-		data->philos[i] = create_philo(i, NULL, data);
+		if (pthread_mutex_init(&(data->forks[i]), NULL))
+		{
+			free_data(&data);
+			return (-1);
+		}
+		++i;
+	}
+
+		
+	i = 0;
+	while (i < data->settings->number_of_philosophers)
+	{
+		data->philos[i] = create_philo(i, data);
 		if (!(data->philos[i]))
 		{
 			free_data(&data);
@@ -188,6 +221,7 @@ int	run(int argc, char **argv)
 		printf("Created Philosopher #%d\n", data->philos[i]->id);
 		++i;
 	}
+	printf("\n");
 
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
