@@ -22,11 +22,11 @@ void	*start_philo(void *p)
 		if (philo->data->playing && philo->left_fork->available && philo->right_fork->available)
 		{
 			pthread_mutex_lock(&(philo->left_fork->lock)); //don't need to lock forks... maybw
-			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->left_fork->id);
+//			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->left_fork->id);
 			philo->left_fork->available = 0;
 			ft_log(philo->id, "has taken a fork");
 			pthread_mutex_lock(&(philo->right_fork->lock));
-			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->right_fork->id);
+//			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->right_fork->id);
 			philo->right_fork->available = 0;
 			ft_log(philo->id, "has taken a fork");
 			pthread_mutex_unlock(philo->taking_forks);
@@ -35,15 +35,16 @@ void	*start_philo(void *p)
 			//eating here
 			usleep(philo->data->settings->time_to_eat * 1000);
 
-			printf("Philosopher #%d is about to release the forks\n", philo->id);
+//			printf("Philosopher #%d is about to release the forks\n", philo->id);
 			philo->left_fork->available = 1;
 			philo->right_fork->available = 1;
 			pthread_mutex_unlock(&(philo->left_fork->lock));
 			pthread_mutex_unlock(&(philo->right_fork->lock));
-			printf("Philosopher #%d has already released the forks\n", philo->id);
+//			printf("Philosopher #%d has already released the forks\n", philo->id);
 
 			// Sleeping
 			ft_log(philo->id, "is sleeping");
+			usleep(philo->data->settings->time_to_sleep * 1000);
 
 			// Dying because other death conditions not set yet and I don't want infinite
 			philo->alive = 0;
