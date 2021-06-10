@@ -25,16 +25,16 @@ void	*start_philo(void *p)
 			philo->right_fork->available = 0;
 			printf("Philosopher #%d took forks\n", philo->id);
 			pthread_mutex_unlock(philo->taking_forks);
+			printf("Philosopher #%d is about to release the forks\n", philo->id);
+			philo->left_fork->available = 1;
+			philo->right_fork->available = 1;
+			pthread_mutex_unlock(&(philo->left_fork->lock));
+			pthread_mutex_unlock(&(philo->right_fork->lock));
+			printf("Philosopher #%d has already released the forks\n", philo->id);
+			philo->alive = 0;
 		}
 		else
-			continue ;
-		printf("Philosopher #%d is about to release the forks\n", philo->id);
-		philo->left_fork->available = 1;
-		philo->right_fork->available = 1;
-		pthread_mutex_unlock(&(philo->left_fork->lock));
-		pthread_mutex_unlock(&(philo->right_fork->lock));
-		printf("Philosopher #%d has already released the forks\n", philo->id);
-		philo->alive = 0;
+			pthread_mutex_unlock(philo->taking_forks);
 	}
 	pthread_exit(p);
 }
