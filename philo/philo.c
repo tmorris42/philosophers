@@ -17,14 +17,20 @@ void	*start_philo(void *p)
 		if (philo->left_fork->available && philo->right_fork->available)
 		{
 			printf("Philosopher #%d is taking forks\n", philo->id);
-			pthread_mutex_lock(&(philo->left_fork->lock));
+			pthread_mutex_lock(&(philo->left_fork->lock)); //don't need to lock forks... maybw
+			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->left_fork->id);
+			philo->left_fork->available = 0;
 			pthread_mutex_lock(&(philo->right_fork->lock));
+			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->right_fork->id);
+			philo->right_fork->available = 0;
 			printf("Philosopher #%d took forks\n", philo->id);
 			pthread_mutex_unlock(philo->taking_forks);
 		}
 		else
 			continue ;
 		printf("Philosopher #%d is about to release the forks\n", philo->id);
+		philo->left_fork->available = 1;
+		philo->right_fork->available = 1;
 		pthread_mutex_unlock(&(philo->left_fork->lock));
 		pthread_mutex_unlock(&(philo->right_fork->lock));
 		printf("Philosopher #%d has already released the forks\n", philo->id);
@@ -221,6 +227,7 @@ int	run(int argc, char **argv)
 			free_data(&data);
 			return (-1);
 		}
+		data->forks[i].id = i;
 		data->forks[i].available = 1;
 		++i;
 	}

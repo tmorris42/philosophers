@@ -12,6 +12,7 @@ typedef struct	s_settings
 
 typedef struct	s_fork
 {
+	int	id;
 	pthread_mutex_t lock;
 	int	available;
 }	t_fork;
