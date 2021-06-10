@@ -1,13 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <pthread.h>
 #include "philo.h"
 
 void	ft_log(int id, char *msg)
 {
-	printf("TIMESTAMP %d %s\n", id + 1, msg);
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	printf("%ld", (long int)time.tv_sec * 1000 + (long int)time.tv_usec / 1000);
+	printf(" %d %s\n", id + 1, msg);
 }
 
 void	*start_philo(void *p)
