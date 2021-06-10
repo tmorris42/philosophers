@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <pthread.h>
 #include "philo.h"
+
+void	ft_log(int id, char *msg)
+{
+	printf("TIMESTAMP %d %s\n", id + 1, msg);
+}
 
 void	*start_philo(void *p)
 {
@@ -10,31 +16,45 @@ void	*start_philo(void *p)
 
 	philo = (t_philo *)p;
 
-	while (philo->alive)
+	while (philo && philo->alive && philo->data->playing)
 	{
-		printf("Philosopher #%d wants to take forks\n", philo->id);
 		pthread_mutex_lock(philo->taking_forks);
-		if (philo->left_fork->available && philo->right_fork->available)
+		if (philo->data->playing && philo->left_fork->available && philo->right_fork->available)
 		{
-			printf("Philosopher #%d is taking forks\n", philo->id);
 			pthread_mutex_lock(&(philo->left_fork->lock)); //don't need to lock forks... maybw
 			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->left_fork->id);
 			philo->left_fork->available = 0;
+			ft_log(philo->id, "has taken a fork");
 			pthread_mutex_lock(&(philo->right_fork->lock));
 			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->right_fork->id);
 			philo->right_fork->available = 0;
-			printf("Philosopher #%d took forks\n", philo->id);
+			ft_log(philo->id, "has taken a fork");
 			pthread_mutex_unlock(philo->taking_forks);
+			ft_log(philo->id, "is eating");
+
+			//eating here
+			usleep(philo->data->settings->time_to_eat * 1000);
+
 			printf("Philosopher #%d is about to release the forks\n", philo->id);
 			philo->left_fork->available = 1;
 			philo->right_fork->available = 1;
 			pthread_mutex_unlock(&(philo->left_fork->lock));
 			pthread_mutex_unlock(&(philo->right_fork->lock));
 			printf("Philosopher #%d has already released the forks\n", philo->id);
+
+			// Sleeping
+			ft_log(philo->id, "is sleeping");
+
+			// Dying because other death conditions not set yet and I don't want infinite
 			philo->alive = 0;
 		}
 		else
 			pthread_mutex_unlock(philo->taking_forks);
+	}
+	if (philo && philo->data && philo->data->playing && (!philo->alive))
+	{
+		philo->data->playing = 0;
+		ft_log(philo->id, "has died");
 	}
 	pthread_exit(p);
 }
@@ -60,6 +80,7 @@ t_philo	*create_philo(int id, t_data *data)
 		philo->right_fork = &data->forks[data->settings->number_of_philosophers - 1];
 	philo->taking_forks = &(data->taking_forks);
 	philo->alive = 1;
+	philo->data = data;
 	return (philo);
 }
 
@@ -158,6 +179,7 @@ t_data	*init_data()
 	data = (t_data *)malloc(sizeof(*data));
 	if (!data)
 		return (NULL);
+	data->playing = 1;
 	data->settings = NULL;
 	data->philos = NULL;
 	data->forks = NULL; //should be an array of mutex entries for the forks
@@ -189,13 +211,13 @@ int	run(int argc, char **argv)
 	}
 
 	// Printing settings for debugging only
-	i = 0;
+/*	i = 0;
 	while (i < 5)
 	{
 		printf("Setting %d = %d\n", i + 1, settings[i]);
 		++i;
 	}
-	printf("\n");
+	printf("\n"); */
 
 	data->philos = (t_philo **)malloc(sizeof(*data->philos) * data->settings->number_of_philosophers);
 	if (!data->philos)
@@ -242,10 +264,8 @@ int	run(int argc, char **argv)
 			free_data(&data);
 			return (-1);
 		}
-		printf("Created Philosopher #%d\n", data->philos[i]->id);
 		++i;
 	}
-	printf("\n");
 
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
@@ -257,7 +277,6 @@ int	run(int argc, char **argv)
 			free_data(&data);
 			return (-1); //clean up first, including created threads!!!
 		}
-		printf("Created thread with id=%d\n", data->philos[i]->id);
 		++i;
 	}
 	

@@ -25,6 +25,7 @@ typedef struct	s_philo
 	t_fork	*right_fork;
 	pthread_mutex_t	*taking_forks;
 	int	alive;
+	struct s_data	*data;
 }	t_philo;
 
 typedef struct	s_data
