@@ -10,14 +10,6 @@ typedef struct	s_settings
 	int	number_of_times_each_philosopher_must_eat;
 }	t_settings;
 
-typedef struct	s_data
-{
-	int playing;
-	pthread_mutex_t taking_forks;
-	pthread_mutex_t	*forks;
-	t_settings	*settings;
-}	t_data;
-
 typedef struct	s_philo
 {
 	int	id;
@@ -27,4 +19,12 @@ typedef struct	s_philo
 	pthread_mutex_t	*taking_forks;
 }	t_philo;
 
+typedef struct	s_data
+{
+	int playing;
+	pthread_mutex_t taking_forks;
+	pthread_mutex_t	*forks;
+	t_settings	*settings;
+	t_philo	**philos;
+}	t_data;
 #endif

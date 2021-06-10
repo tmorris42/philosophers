@@ -74,13 +74,9 @@ t_settings	*get_settings(int argc, char **argv, int *settings)
 	i = 1;
 	while (argc > 1 && i < argc)
 	{
-		printf("Arg #%d = \"%s\"\n", i, argv[i]);
 		value = parse_argument(argv[i]);
 		if (value < 0)
-		{
-			printf("\tInvalid argument\n");
 			return (NULL);
-		}
 		else
 			settings[i - 1] = value;
 		++i;
@@ -100,11 +96,23 @@ t_settings	*get_settings(int argc, char **argv, int *settings)
 void	free_data(t_data **data_ptr)
 {
 	t_data	*data;
+	int	i;
 
 	data = (*data_ptr);
 	pthread_mutex_destroy(&data->taking_forks);
-	free(data->settings);
+	if (data->philos && data->settings)
+	{
+		i = 0;
+		while (i < data->settings->number_of_philosophers)
+		{
+			free(data->philos[i]);
+			data->philos[i] = NULL;
+			++i;
+		}
+	}
+	free(data->philos);
 	free(data->forks);
+	free(data->settings);
 	free(data);
 	(*data_ptr) = NULL;
 }
@@ -117,6 +125,7 @@ t_data	*init_data()
 	if (!data)
 		return (NULL);
 	data->settings = NULL;
+	data->philos = NULL;
 	data->forks = NULL; //should be an array of mutex entries for the forks
 	if (pthread_mutex_init(&data->taking_forks, NULL))
 	{
@@ -133,8 +142,6 @@ int	run(int argc, char **argv)
 	t_data *data;
 	int *ptr;
 	int	err;
-	t_philo *philo_one;
-	t_philo *philo_two;
 
 	data = init_data();
 	if (!data)
@@ -142,54 +149,67 @@ int	run(int argc, char **argv)
 	data->settings = get_settings(argc, argv, &settings[0]);
 	if (!(data->settings))
 	{
+		printf("Invalid arguments!\n");
 		free_data(&data);
 		return (-1); //cleanup first
 	}
 
+	// Printing settings for debugging only
 	i = 0;
 	while (i < 5)
 	{
 		printf("Setting %d = %d\n", i + 1, settings[i]);
 		++i;
 	}
+	printf("\n");
 
-	philo_one = create_philo(1, NULL, data);
-	if (!philo_one)
+	data->philos = (t_philo **)malloc(sizeof(*data->philos) * data->settings->number_of_philosophers);
+	if (!data->philos)
 	{
-		free_data(&data);
-		return (-1); //cleanup first
-	}
-	err = pthread_create(&philo_one->tid, NULL, start_philo, philo_one);
-	if (err)
-	{
-		printf("pthread_create failed : %s\n", strerror(err));
-		free(philo_one);
 		free_data(&data);
 		return (-1);
 	}
-	printf("Created thread with id=%d\n", philo_one->id);
-	
-	philo_two = create_philo(2, NULL, data);
-	if (!philo_two)
+	i = 0;
+	while (i < data->settings->number_of_philosophers)
 	{
-		free(philo_one);
-		free_data(&data);
-		return (-1); //cleanup first
+		data->philos[i] = NULL;
+		++i;
 	}
-	err = pthread_create(&philo_two->tid, NULL, start_philo, philo_two);
-	if (err)
-	{
-		printf("pthread_create failed : %s\n", strerror(err));
-		free(philo_one);
-		free(philo_two);
-		free_data(&data);
-		return (-1);
-	}
-	printf("Created thread with id=%d\n", philo_two->id);
-	
-	pthread_join(philo_one->tid, (void **)&ptr);
-	pthread_join(philo_two->tid, (void **)&ptr);
 
+	i = 0;
+	while (i < data->settings->number_of_philosophers)
+	{
+		data->philos[i] = create_philo(i, NULL, data);
+		if (!(data->philos[i]))
+		{
+			free_data(&data);
+			return (-1);
+		}
+		printf("Created Philosopher #%d\n", data->philos[i]->id);
+		++i;
+	}
+
+	i = 0;
+	while (i < data->settings->number_of_philosophers)
+	{
+		err = pthread_create(&((data->philos[i])->tid), NULL, start_philo, data->philos[i]);
+		if (err)
+		{
+			printf("pthread_create failed : %s\n", strerror(err));
+			free_data(&data);
+			return (-1); //clean up first, including created threads!!!
+		}
+		printf("Created thread with id=%d\n", data->philos[i]->id);
+		++i;
+	}
+	
+	i = 0;
+	while (i < data->settings->number_of_philosophers)
+	{
+		pthread_join(data->philos[i]->tid, (void **)&ptr);
+		++i;
+	}
+	
 	free_data(&data);
 	return (0);
 }
