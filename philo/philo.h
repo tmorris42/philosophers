@@ -25,6 +25,7 @@ typedef struct	s_philo
 	t_fork	*right_fork;
 	int	alive;
 	struct s_data	*data;
+	long int	time_of_last_meal;
 }	t_philo;
 
 typedef struct	s_data
