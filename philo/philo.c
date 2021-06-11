@@ -6,12 +6,23 @@
 #include <pthread.h>
 #include "philo.h"
 
-void	ft_log(int id, char *msg)
+long int	timeval_to_long_int(struct timeval time)
 {
+	return ((long int)time.tv_sec * 1000 + (long int)time.tv_usec / 1000);
+}
+
+void	ft_log(t_philo *philo, char *msg)
+{
+	long int	delta_time;
 	struct timeval time;
+
+	pthread_mutex_lock(&(philo->data->log_lock));
 	gettimeofday(&time, NULL);
-	printf("%ld", (long int)time.tv_sec * 1000 + (long int)time.tv_usec / 1000);
-	printf(" %d %s\n", id + 1, msg);
+	delta_time = timeval_to_long_int(time);
+	delta_time -= philo->data->start_time;
+	printf("%ldms", delta_time);
+	printf(" %d %s\n", philo->id + 1, msg);
+	pthread_mutex_unlock(&(philo->data->log_lock));
 }
 
 void	*start_philo(void *p)
@@ -22,44 +33,44 @@ void	*start_philo(void *p)
 
 	while (philo && philo->alive && philo->data->playing)
 	{
-		pthread_mutex_lock(philo->taking_forks);
-		if (philo->data->playing && philo->left_fork->available && philo->right_fork->available)
+		if (philo->id % 2)
 		{
 			pthread_mutex_lock(&(philo->left_fork->lock)); //don't need to lock forks... maybw
-//			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->left_fork->id);
 			philo->left_fork->available = 0;
-			ft_log(philo->id, "has taken a fork");
+			ft_log(philo, "has taken a fork");
+
 			pthread_mutex_lock(&(philo->right_fork->lock));
-//			printf("Philosopher #%d is taking Fork #%d\n", philo->id, philo->right_fork->id);
 			philo->right_fork->available = 0;
-			ft_log(philo->id, "has taken a fork");
-			pthread_mutex_unlock(philo->taking_forks);
-			ft_log(philo->id, "is eating");
-
-			//eating here
-			usleep(philo->data->settings->time_to_eat * 1000);
-
-//			printf("Philosopher #%d is about to release the forks\n", philo->id);
-			philo->left_fork->available = 1;
-			philo->right_fork->available = 1;
-			pthread_mutex_unlock(&(philo->left_fork->lock));
-			pthread_mutex_unlock(&(philo->right_fork->lock));
-//			printf("Philosopher #%d has already released the forks\n", philo->id);
-
-			// Sleeping
-			ft_log(philo->id, "is sleeping");
-			usleep(philo->data->settings->time_to_sleep * 1000);
-
-			// Dying because other death conditions not set yet and I don't want infinite
-			philo->alive = 0;
+			ft_log(philo, "has taken a fork");
 		}
 		else
-			pthread_mutex_unlock(philo->taking_forks);
+		{
+			pthread_mutex_lock(&(philo->right_fork->lock));
+			philo->right_fork->available = 0;
+			ft_log(philo, "has taken a fork");
+				
+			pthread_mutex_lock(&(philo->left_fork->lock)); //don't need to lock forks... maybw
+			philo->left_fork->available = 0;
+			ft_log(philo, "has taken a fork");
+		}
+		ft_log(philo, "is eating");
+		//eating here
+		usleep(philo->data->settings->time_to_eat * 1000);
+
+		pthread_mutex_unlock(&(philo->left_fork->lock));
+		pthread_mutex_unlock(&(philo->right_fork->lock));
+
+		// Sleeping
+		ft_log(philo, "is sleeping");
+		usleep(philo->data->settings->time_to_sleep * 1000);
+
+		// Dying because other death conditions not set yet and I don't want infinite
+		philo->alive = 0;
 	}
 	if (philo && philo->data && philo->data->playing && (!philo->alive))
 	{
 		philo->data->playing = 0;
-		ft_log(philo->id, "has died");
+		ft_log(philo, "has died");
 	}
 	pthread_exit(p);
 }
@@ -83,7 +94,6 @@ t_philo	*create_philo(int id, t_data *data)
 		philo->right_fork = &data->forks[id - 1];
 	else
 		philo->right_fork = &data->forks[data->settings->number_of_philosophers - 1];
-	philo->taking_forks = &(data->taking_forks);
 	philo->alive = 1;
 	philo->data = data;
 	return (philo);
@@ -150,6 +160,7 @@ void	free_data(t_data **data_ptr)
 
 	data = (*data_ptr);
 	pthread_mutex_destroy(&data->taking_forks);
+	pthread_mutex_destroy(&data->log_lock);
 	if (data->philos && data->settings)
 	{
 		i = 0;
@@ -161,16 +172,6 @@ void	free_data(t_data **data_ptr)
 		}
 	}
 	free(data->philos);
-/*	if (data->forks && data->settings)
-	{
-		i = 0;
-		while (i < data->settings->number_of_philosophers)
-		{
-			free(data->forks[i]);
-			data->forks[i] = NULL;
-			++i;
-		}
-	} */
 	free(data->forks);
 	free(data->settings);
 	free(data);
@@ -180,6 +181,7 @@ void	free_data(t_data **data_ptr)
 t_data	*init_data()
 {
 	t_data	*data;
+	struct timeval time;
 
 	data = (t_data *)malloc(sizeof(*data));
 	if (!data)
@@ -188,7 +190,14 @@ t_data	*init_data()
 	data->settings = NULL;
 	data->philos = NULL;
 	data->forks = NULL; //should be an array of mutex entries for the forks
+	gettimeofday(&time, NULL);
+	data->start_time = timeval_to_long_int(time);
 	if (pthread_mutex_init(&data->taking_forks, NULL))
+	{
+		free_data(&data);
+		return (NULL);
+	}
+	if (pthread_mutex_init(&data->log_lock, NULL))
 	{
 		free_data(&data);
 		return (NULL);
@@ -210,7 +219,7 @@ int	run(int argc, char **argv)
 	data->settings = get_settings(argc, argv, &settings[0]);
 	if (!(data->settings))
 	{
-		printf("Invalid arguments!\n");
+		printf("Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
 		free_data(&data);
 		return (-1); //cleanup first
 	}
