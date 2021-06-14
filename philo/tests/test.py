@@ -8,6 +8,7 @@ def test_error_codes():
             ("./philo 2 2 3 4 5", 0),
             ("./philo 2 2 3 test 5", -1),
             ("./philo 2 -5 2 9", -1),
+            ("./philo 2 3 4 5 6 7", -1),
             ]
 
 
