@@ -112,9 +112,6 @@ void	*start_philo(void *p)
 			ft_log(philo, "is sleeping");
 			usleep(philo->data->settings->time_to_sleep * 1000);
 		}
-
-		// Dying because other death conditions not set yet and I don't want infinite
-		//philo->alive = 0;
 	}
 	pthread_exit(p);
 }
@@ -336,7 +333,21 @@ int	run(int argc, char **argv)
 		}
 		++i;
 	}
-	
+
+	while (data->playing)
+	{
+		i = 0;
+		while (i < data->settings->number_of_philosophers)
+		{
+			if (starving(data->philos[i]))
+			{
+				//kill philo
+				pthread_detach(data->philos[i]->tid);
+			}
+			++i;
+		}
+	}
+
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
 	{
