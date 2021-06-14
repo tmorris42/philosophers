@@ -43,7 +43,7 @@ int	starving(t_philo *philo)
 	int	dead;
 
 	dead = (now_int() - philo->time_of_last_meal > (long int)philo->data->settings->time_to_die);
-	if (dead)
+	if (philo->alive && dead)
 	{
 		ft_log(philo, "has died");
 		philo->alive = 0;
@@ -68,16 +68,21 @@ int	take_fork(t_philo *philo, t_fork *fork)
 void	*start_philo(void *p)
 {
 	t_philo *philo;
+	long int	timer;
 
 	philo = (t_philo *)p;
 
 	while (philo && philo->alive && philo->data->playing)
 	{
+		if (philo->data->playing && starving(philo))
+			philo->alive = 0;
+		if (philo->left_fork == philo->right_fork)
+			continue ;
 		if (philo->id % 2)
 		{
-			if (!(take_fork(philo, philo->left_fork)))
+			if (!philo->data->playing || !(take_fork(philo, philo->left_fork)))
 				break ;
-			if (!(take_fork(philo, philo->right_fork)))
+			if (!philo->data->playing || !(take_fork(philo, philo->right_fork)))
 			{
 				pthread_mutex_unlock(&(philo->left_fork->lock));
 				break ;
@@ -85,32 +90,40 @@ void	*start_philo(void *p)
 		}
 		else
 		{
-			if (!(take_fork(philo, philo->right_fork)))
+			if (!philo->data->playing || !(take_fork(philo, philo->right_fork)))
 				break ;
-			if (!(take_fork(philo, philo->left_fork)))
+			if (!philo->data->playing || !(take_fork(philo, philo->left_fork)))
 			{
 				pthread_mutex_unlock(&(philo->right_fork->lock));
 				break ;
 			}
 		}
-		if (starving(philo))
-			philo->alive = 0;
-		else
+		if (philo->data->playing && !starving(philo))
 		{
 			philo->time_of_last_meal = now_int();
 			ft_log(philo, "is eating");
 			//eating here
-			usleep(philo->data->settings->time_to_eat * 1000);
+			timer = philo->data->settings->time_to_eat;
+			while (philo->data->playing && !starving(philo) && timer > 0)
+			{
+				usleep(1000);
+				--timer;
+			}
 		}
 
 		pthread_mutex_unlock(&(philo->left_fork->lock));
 		pthread_mutex_unlock(&(philo->right_fork->lock));
 
-		if (!starving(philo) && philo->alive)
+		if (philo->data->playing && !starving(philo) && philo->alive)
 		{
 			// Sleeping
 			ft_log(philo, "is sleeping");
-			usleep(philo->data->settings->time_to_sleep * 1000);
+			timer = philo->data->settings->time_to_sleep;
+			while (philo->data->playing && !starving(philo) && timer > 0)
+			{
+				usleep(1000);
+				--timer;
+			}
 		}
 	}
 	pthread_exit(p);
@@ -342,7 +355,8 @@ int	run(int argc, char **argv)
 			if (starving(data->philos[i]))
 			{
 				//kill philo
-				pthread_detach(data->philos[i]->tid);
+//				pthread_detach(data->philos[i]->tid);
+				data->playing = 0;
 			}
 			++i;
 		}
@@ -360,6 +374,7 @@ int	run(int argc, char **argv)
 }
 
 int	main(int argc, char **argv)
-{
-	return (run(argc, argv));
+{	
+	run(argc, argv);
+	pthread_exit(NULL);
 }
