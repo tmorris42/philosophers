@@ -23,9 +23,9 @@ typedef struct	s_philo
 	pthread_t tid;
 	t_fork	*left_fork;
 	t_fork	*right_fork;
-	pthread_mutex_t	*taking_forks;
 	int	alive;
 	struct s_data	*data;
+	long int	time_of_last_meal;
 }	t_philo;
 
 typedef struct	s_data
@@ -35,5 +35,7 @@ typedef struct	s_data
 	t_fork	*forks;
 	t_settings	*settings;
 	t_philo	**philos;
+	long int	start_time;
+	pthread_mutex_t log_lock;
 }	t_data;
 #endif
