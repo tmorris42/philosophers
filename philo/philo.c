@@ -13,7 +13,7 @@ long int	timeval_to_long_int(struct timeval time)
 	return ((long int)time.tv_sec * 1000 + (long int)time.tv_usec / 1000);
 }
 
-long int	now_int()
+long int	now_int(void)
 {
 	struct timeval	time;
 
@@ -23,8 +23,8 @@ long int	now_int()
 
 void	ft_log(t_philo *philo, char *msg)
 {
-	long int	delta_time;
-	struct timeval time;
+	long int		delta_time;
+	struct timeval	time;
 
 	pthread_mutex_lock(&(philo->data->log_lock));
 	if (philo->data->playing && philo->alive)
@@ -67,7 +67,7 @@ int	take_fork(t_philo *philo, t_fork *fork)
 
 void	*start_philo(void *p)
 {
-	t_philo *philo;
+	t_philo		*philo;
 	long int	timer;
 
 	philo = (t_philo *)p;
@@ -173,8 +173,8 @@ int	parse_argument(char *arg)
 
 t_settings	*get_settings(int argc, char **argv, int *settings)
 {
-	int	i;
-	int	value;
+	int			i;
+	int			value;
 	t_settings	*ss; //setting struct: rename to settings if kept
 
 	if (argc < 5 || argc > 6)
@@ -185,7 +185,6 @@ t_settings	*get_settings(int argc, char **argv, int *settings)
 		settings[i] = -1;
 		++i;
 	}
-
 	i = 1;
 	while (argc > 1 && i < argc)
 	{
@@ -196,7 +195,6 @@ t_settings	*get_settings(int argc, char **argv, int *settings)
 			settings[i - 1] = value;
 		++i;
 	}
-
 	ss = (t_settings *)malloc(sizeof(*ss));
 	if (!ss)
 		return (NULL);
@@ -211,7 +209,7 @@ t_settings	*get_settings(int argc, char **argv, int *settings)
 void	free_data(t_data **data_ptr)
 {
 	t_data	*data;
-	int	i;
+	int		i;
 
 	data = (*data_ptr);
 	pthread_mutex_destroy(&data->taking_forks);
@@ -242,7 +240,7 @@ void	free_data(t_data **data_ptr)
 	(*data_ptr) = NULL;
 }
 
-t_data	*init_data()
+t_data	*init_data(void)
 {
 	t_data	*data;
 
@@ -269,11 +267,11 @@ t_data	*init_data()
 
 int	run(int argc, char **argv)
 {
-	int	i;
-	int	settings[5];
-	t_data *data;
-	int *ptr;
-	int	err;
+	int		i;
+	int		settings[5];
+	t_data	*data;
+	int		*ptr;
+	int		err;
 
 	data = init_data();
 	if (!data)
@@ -320,8 +318,6 @@ int	run(int argc, char **argv)
 		data->forks[i].available = 1;
 		++i;
 	}
-
-		
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
 	{
@@ -333,7 +329,6 @@ int	run(int argc, char **argv)
 		}
 		++i;
 	}
-
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
 	{
@@ -346,7 +341,6 @@ int	run(int argc, char **argv)
 		}
 		++i;
 	}
-
 	while (data->playing)
 	{
 		i = 0;
@@ -361,14 +355,12 @@ int	run(int argc, char **argv)
 			++i;
 		}
 	}
-
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
 	{
 		pthread_join(data->philos[i]->tid, (void **)&ptr); //should you detach instead?
 		++i;
 	}
-	
 	free_data(&data);
 	return (0);
 }
