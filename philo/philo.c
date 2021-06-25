@@ -6,6 +6,10 @@
 #include <pthread.h>
 #include "philo.h"
 
+# ifndef SLEEP_INT
+#  define SLEEP_INT 500
+# endif
+
 int	starving(t_philo *philo);
 
 long int	timeval_to_long_int(struct timeval time)
@@ -103,11 +107,10 @@ void	*start_philo(void *p)
 			philo->time_of_last_meal = now_int();
 			ft_log(philo, "is eating");
 			//eating here
-			timer = philo->data->settings->time_to_eat;
-			while (philo->data->playing && !starving(philo) && timer > 0)
+			timer = now_int() + philo->data->settings->time_to_eat;
+			while (philo->data->playing && !starving(philo) && now_int() <= timer)
 			{
-				usleep(1000);
-				--timer;
+				usleep(SLEEP_INT);
 			}
 		}
 
@@ -118,11 +121,10 @@ void	*start_philo(void *p)
 		{
 			// Sleeping
 			ft_log(philo, "is sleeping");
-			timer = philo->data->settings->time_to_sleep;
-			while (philo->data->playing && !starving(philo) && timer > 0)
+			timer = now_int() + philo->data->settings->time_to_sleep;
+			while (philo->data->playing && !starving(philo) && now_int() <= timer)
 			{
-				usleep(1000);
-				--timer;
+				usleep(SLEEP_INT);
 			}
 		}
 	}
