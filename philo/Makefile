@@ -1,12 +1,13 @@
 UNAME_S := ${shell uname}
 
 NAME = philo
+HEADERS = philo.h
 SRCS = philo.c
 OBJS = ${SRCS:.c=.o}
 
 all: $(NAME)
 
-$(OBJS): %.o : %.c
+$(OBJS): %.o : %.c $(HEADERS)
 ifeq ($(UNAME_S),Linux)
 	gcc -c -Wall -Wextra -Werror $< -o $@ -lpthread
 endif
