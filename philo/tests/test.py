@@ -1,6 +1,10 @@
 import os
 import subprocess
 
+RED = "\033[31m"
+GREEN = "\033[32m"
+RESET = "\033[0m"
+
 def test_error_codes():
     cmds = [
             ("./philo", -1),
@@ -17,24 +21,24 @@ def test_error_codes():
     total = 0;
     for cmd in cmds:
         total += 1
-        header = f"Testing {cmd[0]}"
+        header = f"{cmd[0]}"
         header += " " * (30 - len(header))
         header += f"expecting [{cmd[1]}]"
-        print(header + "." * (60 - len(header)), end="")
+        print(header + "." * (45 - len(header)), end="")
         try:
             result = subprocess.check_output(cmd[0], shell=True, text=True)
             if cmd[1] == 0:
-                print("PASSED (No Error Code)")
+                print(f"{GREEN}PASSED{RESET} (No Error Code)")
                 passed += 1
             else:
-                print("FAILED (No Error Code")
+                print(f"{RED}FAILED{RESET} (No Error Code")
 
         except subprocess.CalledProcessError as e:
             if cmd[1] == -1:
-                print("PASSED (Returned Error Code)")
+                print(f"{GREEN}PASSED{RESET} (Returned Error Code)")
                 passed += 1
             else:
-                print("FAILED (Returned Error Code)")
+                print(f"{RED}FAILED{RESET} (Returned Error Code)")
     return (passed, total)
 
 if __name__ == '__main__':
