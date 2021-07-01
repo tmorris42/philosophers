@@ -35,7 +35,7 @@ void	ft_log(t_philo *philo, char *msg)
 	{
 		gettimeofday(&time, NULL);
 		delta_time = timeval_to_long_int(time);
-		delta_time -= philo->data->start_time;
+		delta_time -= philo->start_time;
 		printf("%ldms", delta_time);
 		printf(" %d %s\n", philo->id + 1, msg);
 	}
@@ -75,7 +75,8 @@ void	*start_philo(void *p)
 	long int	timer;
 
 	philo = (t_philo *)p;
-
+	philo->start_time = now_int();
+	philo->time_of_last_meal = philo->start_time;
 	while (philo && philo->alive && philo->data->playing)
 	{
 		if (philo->data->playing && starving(philo))
@@ -152,7 +153,8 @@ t_philo	*create_philo(int id, t_data *data)
 		philo->right_fork = &data->forks[data->settings->number_of_philosophers - 1];
 	philo->alive = 1;
 	philo->data = data;
-	philo->time_of_last_meal = philo->data->start_time;
+	philo->start_time = now_int();
+	philo->time_of_last_meal = philo->start_time;
 	return (philo);
 }
 
