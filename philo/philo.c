@@ -321,6 +321,7 @@ int	run(int argc, char **argv)
 		++i;
 	}
 	i = 0;
+	data->start_time = now_int();
 	while (i < data->settings->number_of_philosophers)
 	{
 		data->philos[i] = create_philo(i, data);
@@ -346,7 +347,7 @@ int	run(int argc, char **argv)
 	while (data->playing)
 	{
 		i = 0;
-		while (i < data->settings->number_of_philosophers)
+		while (i < data->settings->number_of_philosophers) //check also for everyone is full
 		{
 			if (starving(data->philos[i]))
 			{
