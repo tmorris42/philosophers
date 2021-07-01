@@ -128,7 +128,7 @@ void	*start_philo(void *p)
 			}
 		}
 	}
-	pthread_exit(p);
+	return (p);
 }
 
 t_philo	*create_philo(int id, t_data *data)
@@ -372,6 +372,5 @@ int	main(int argc, char **argv)
 	int	ret;
 
 	ret = run(argc, argv);
-//	pthread_exit(&ret);
 	return (ret);
 }
