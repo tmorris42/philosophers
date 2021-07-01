@@ -7,7 +7,7 @@
 #include "philo.h"
 
 # ifndef SLEEP_INT
-#  define SLEEP_INT 500
+#  define SLEEP_INT 0
 # endif
 
 int	starving(t_philo *philo);
@@ -46,7 +46,7 @@ int	starving(t_philo *philo)
 {
 	int	dead;
 
-	dead = (now_int() - philo->time_of_last_meal > (long int)philo->data->settings->time_to_die);
+	dead = (now_int() - philo->time_of_last_meal >= (long int)philo->data->settings->time_to_die);
 	if (philo->alive && dead)
 	{
 		ft_log(philo, "has died");
@@ -108,7 +108,7 @@ void	*start_philo(void *p)
 			ft_log(philo, "is eating");
 			//eating here
 			timer = now_int() + philo->data->settings->time_to_eat;
-			while (philo->data->playing && !starving(philo) && now_int() <= timer)
+			while (philo->data->playing && !starving(philo) && now_int() < timer)
 			{
 				usleep(SLEEP_INT);
 			}
@@ -122,7 +122,7 @@ void	*start_philo(void *p)
 			// Sleeping
 			ft_log(philo, "is sleeping");
 			timer = now_int() + philo->data->settings->time_to_sleep;
-			while (philo->data->playing && !starving(philo) && now_int() <= timer)
+			while (philo->data->playing && !starving(philo) && now_int() < timer)
 			{
 				usleep(SLEEP_INT);
 			}
