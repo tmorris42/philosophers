@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+TIME_TO_WAIT_FOR_DEATH = 30 # in seconds
+
 RED = "\033[31m"
 GREEN = "\033[32m"
 WHITE = "\033[37m"
@@ -49,6 +51,8 @@ def test_dying_philos():
     cmds = [
             ("2 1 200 10", 1),
             ("2 1000 2 2", 0),
+            ("4 310 200 100", 1), #from correction
+            ("4 410 200 200", 0), #from correct?
             ]
 
     print(f"{WHITE}Testing death conditions{RESET}")
@@ -61,7 +65,10 @@ def test_dying_philos():
         header += f"expect death"*cmd[1]
         print(header + "." * (45 - len(header)), end="")
         try:
-            result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=1)
+            if (cmd[1]):
+                result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=cmd[1]+0.01)
+            else:
+                result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=TIME_TO_WAIT_FOR_DEATH)
             if "has died" in result and cmd[1]:
                 print(f"{GREEN}PASSED{RESET} (Death!)")
                 passed += 1
