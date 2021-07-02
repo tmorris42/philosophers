@@ -7,7 +7,7 @@
 #include "philo.h"
 
 # ifndef SLEEP_INT
-#  define SLEEP_INT 0
+#  define SLEEP_INT 1
 # endif
 
 int	starving(t_philo *philo);
@@ -23,6 +23,14 @@ long int	now_int(void)
 
 	gettimeofday(&time, NULL);
 	return (timeval_to_long_int(time));
+}
+
+void	ft_usleep(long int finish)
+{
+	while (now_int() < finish)
+	{
+		usleep(SLEEP_INT);
+	}
 }
 
 void	ft_log(t_philo *philo, char *msg)
@@ -42,6 +50,25 @@ void	ft_log(t_philo *philo, char *msg)
 	pthread_mutex_unlock(&(philo->data->log_lock));
 }
 
+void	kill_philo(t_data *data, t_philo *philo)
+{
+	long int		delta_time;
+	struct timeval	time;
+
+	pthread_mutex_lock(&(data->log_lock));
+	if (philo->data->playing && philo->alive)
+	{
+		data->playing = 0;
+		philo->alive = 0;
+		gettimeofday(&time, NULL);
+		delta_time = timeval_to_long_int(time);
+		delta_time -= philo->start_time;
+		printf("%ldms", delta_time);
+		printf(" %d has died\n", philo->id + 1);
+	}
+	pthread_mutex_unlock(&(philo->data->log_lock));
+}
+
 int	starving(t_philo *philo)
 {
 	int	dead;
@@ -56,12 +83,21 @@ int	starving(t_philo *philo)
 	return (dead);
 }
 
+int	drop_forks(t_philo *philo)
+{
+	pthread_mutex_lock(&(philo->data->taking_forks));
+	philo->left_fork->available = 1;
+	philo->right_fork->available = 1;
+	pthread_mutex_unlock(&(philo->data->taking_forks));
+	return (1);
+}
+
 int	take_fork(t_philo *philo, t_fork *fork)
 {
-	pthread_mutex_lock(&(fork->lock));
+//	pthread_mutex_lock(&(fork->lock));
 	if (starving(philo))
 	{
-		pthread_mutex_unlock(&(fork->lock));
+//		pthread_mutex_unlock(&(fork->lock));
 		return (0);
 	}
 	fork->available = 0;
@@ -79,11 +115,24 @@ void	*start_philo(void *p)
 	philo->time_of_last_meal = philo->start_time;
 	while (philo && philo->alive && philo->data->playing)
 	{
-		if (philo->data->playing && starving(philo))
-			philo->alive = 0;
+//		if (philo->data->playing && starving(philo))
+//			philo->alive = 0;
 		if (philo->left_fork == philo->right_fork)
 			continue ;
-		if (philo->id % 2)
+		pthread_mutex_lock(&(philo->data->taking_forks));
+		if (philo->left_fork->available && philo->right_fork->available)
+		{
+			take_fork(philo, philo->left_fork);
+			take_fork(philo, philo->right_fork);
+			pthread_mutex_unlock(&(philo->data->taking_forks));
+		}
+		else
+		{
+			pthread_mutex_unlock(&(philo->data->taking_forks));
+			usleep(SLEEP_INT);
+			continue ;
+		}
+/*		if (philo->id % 2)
 		{
 			if (!philo->data->playing || !(take_fork(philo, philo->left_fork)))
 				break ;
@@ -103,31 +152,37 @@ void	*start_philo(void *p)
 				break ;
 			}
 		}
+		*/
 		if (philo->data->playing && !starving(philo))
 		{
 			philo->time_of_last_meal = now_int();
 			ft_log(philo, "is eating");
 			//eating here
 			timer = now_int() + philo->data->settings->time_to_eat;
-			while (philo->data->playing && !starving(philo) && now_int() < timer)
-			{
-				usleep(SLEEP_INT);
-			}
+			ft_usleep(timer);
+//			while (philo->data->playing && !starving(philo) && now_int() < timer)
+//			{
+//				ft_usleep(SLEEP_INT);
+//			}
+			ft_log(philo, "is done eating");
 		}
+		drop_forks(philo);
+		ft_log(philo, "dropped forks");
+//		pthread_mutex_unlock(&(philo->left_fork->lock));
+//		pthread_mutex_unlock(&(philo->right_fork->lock));
 
-		pthread_mutex_unlock(&(philo->left_fork->lock));
-		pthread_mutex_unlock(&(philo->right_fork->lock));
-
-		if (philo->data->playing && !starving(philo) && philo->alive)
+		if (philo->data->playing && philo->alive)
 		{
 			// Sleeping
 			ft_log(philo, "is sleeping");
 			timer = now_int() + philo->data->settings->time_to_sleep;
-			while (philo->data->playing && !starving(philo) && now_int() < timer)
-			{
-				usleep(SLEEP_INT);
-			}
+			ft_usleep(timer);
+//			while (philo->data->playing && !starving(philo) && now_int() < timer)
+//			{
+//				usleep(SLEEP_INT);
+//			}
 		}
+		ft_log(philo, "is done sleeping");
 	}
 	return (p);
 }
@@ -355,7 +410,7 @@ int	run(int argc, char **argv)
 			{
 				//kill philo
 //				pthread_detach(data->philos[i]->tid);
-				data->playing = 0;
+				kill_philo(data, data->philos[i]);
 			}
 			++i;
 		}
