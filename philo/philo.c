@@ -165,10 +165,10 @@ void	*start_philo(void *p)
 //				ft_usleep(SLEEP_INT);
 //			}
 			philo->times_eaten += 1;
-			ft_log(philo, "is done eating");
+//			ft_log(philo, "is done eating");
 		}
 		drop_forks(philo);
-		ft_log(philo, "dropped forks");
+//		ft_log(philo, "dropped forks");
 //		pthread_mutex_unlock(&(philo->left_fork->lock));
 //		pthread_mutex_unlock(&(philo->right_fork->lock));
 
@@ -183,7 +183,7 @@ void	*start_philo(void *p)
 //				usleep(SLEEP_INT);
 //			}
 		}
-		ft_log(philo, "is done sleeping");
+//		ft_log(philo, "is done sleeping");
 	}
 	return (p);
 }
@@ -423,7 +423,7 @@ int	run(int argc, char **argv)
 		if (done == data->settings->number_of_philosophers)
 		{
 			data->playing = 0;
-			printf("Everyone has eaten enough!!\n"); //
+//			printf("Everyone has eaten enough!!\n"); //
 		}
 		usleep(SLEEP_INT);
 	}
