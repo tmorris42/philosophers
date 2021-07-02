@@ -50,9 +50,12 @@ def test_dying_philos():
     base = "./philo "
     cmds = [
             ("2 1 200 10", 1),
-            ("2 1000 2 2", 0),
             ("4 310 200 100", 1), #from correction
+            ("4 310 200 100", 10),
+            ("2 1000 2 2", 0),
             ("4 410 200 200", 0), #from correct?
+            ("5 800 200 200", 0),
+            ("5 800 200 200 7", 0), #also an everyone eats test
             ]
 
     print(f"{WHITE}Testing death conditions{RESET}")
@@ -62,7 +65,7 @@ def test_dying_philos():
         total += 1
         header = f"{base}{cmd[0]}"
         header += " " * (25 - len(header))
-        header += f"expect death"*cmd[1]
+        header += f"expect death"*(cmd[1] > 0)
         print(header + "." * (45 - len(header)), end="")
         try:
             if (cmd[1]):
