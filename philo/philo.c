@@ -64,7 +64,7 @@ void	kill_philo(t_data *data, t_philo *philo)
 		delta_time = timeval_to_long_int(time);
 		delta_time -= philo->start_time;
 		printf("%ldms", delta_time);
-		printf(" %d has died\n", philo->id + 1);
+		printf(" %d died\n", philo->id + 1);
 	}
 	pthread_mutex_unlock(&(philo->data->log_lock));
 }
@@ -217,8 +217,8 @@ t_philo	*create_philo(int id, t_data *data)
 
 int	parse_argument(char *arg)
 {
-	int	i;
-	int	value;
+	int			i;
+	long int	value;
 
 	value = 0;
 	i = 0;
@@ -229,6 +229,8 @@ int	parse_argument(char *arg)
 		value = (value * 10) + (arg[i] - '0');
 		++i;
 	}
+	if (value > 2147483647)
+		return (-1);
 	return (value);
 }
 
@@ -341,7 +343,7 @@ int	run(int argc, char **argv)
 	data->settings = get_settings(argc, argv, &settings[0]);
 	if (!(data->settings))
 	{
-		printf("Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
+		write(2, "Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n", 120);
 		free_data(&data);
 		return (-1); //cleanup first
 	}
