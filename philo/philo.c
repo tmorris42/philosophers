@@ -414,6 +414,7 @@ int	run(int argc, char **argv)
 			}
 			++i;
 		}
+		usleep(SLEEP_INT);
 	}
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
