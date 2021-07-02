@@ -31,7 +31,7 @@ def test_error_codes():
         header += f"expecting [{cmd[1]}]"
         print(header + "." * (45 - len(header)), end="")
         try:
-            result = subprocess.check_output(cmd[0], shell=True, text=True)
+            result = subprocess.check_output(cmd[0], shell=True, stderr=subprocess.STDOUT, text=True)
             if cmd[1] == 0:
                 print(f"{GREEN}PASSED{RESET} (No Error Code)")
                 passed += 1
