@@ -27,6 +27,7 @@ typedef struct s_philo
 	struct s_data	*data;
 	long int		start_time;
 	long int		time_of_last_meal;
+	int				times_eaten;
 }	t_philo;
 
 typedef struct s_data

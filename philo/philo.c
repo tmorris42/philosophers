@@ -74,11 +74,10 @@ int	starving(t_philo *philo)
 	int	dead;
 
 	dead = (now_int() - philo->time_of_last_meal >= (long int)philo->data->settings->time_to_die);
-	if (philo->alive && dead)
+//	if (philo->alive && dead)
 	{
-		ft_log(philo, "has died");
-		philo->alive = 0;
-		philo->data->playing = 0;
+//		philo->alive = 0;
+//		philo->data->playing = 0;
 	}
 	return (dead);
 }
@@ -95,7 +94,7 @@ int	drop_forks(t_philo *philo)
 int	take_fork(t_philo *philo, t_fork *fork)
 {
 //	pthread_mutex_lock(&(fork->lock));
-	if (starving(philo))
+	if (!(philo->alive))
 	{
 //		pthread_mutex_unlock(&(fork->lock));
 		return (0);
@@ -153,7 +152,8 @@ void	*start_philo(void *p)
 			}
 		}
 		*/
-		if (philo->data->playing && !starving(philo))
+//		if (philo->data->playing && !starving(philo))
+		if (philo->data->playing && philo->alive)
 		{
 			philo->time_of_last_meal = now_int();
 			ft_log(philo, "is eating");
@@ -164,6 +164,7 @@ void	*start_philo(void *p)
 //			{
 //				ft_usleep(SLEEP_INT);
 //			}
+			philo->times_eaten += 1;
 			ft_log(philo, "is done eating");
 		}
 		drop_forks(philo);
@@ -208,6 +209,7 @@ t_philo	*create_philo(int id, t_data *data)
 		philo->right_fork = &data->forks[data->settings->number_of_philosophers - 1];
 	philo->alive = 1;
 	philo->data = data;
+	philo->times_eaten = 0;
 	philo->start_time = now_int();
 	philo->time_of_last_meal = philo->start_time;
 	return (philo);
@@ -327,6 +329,7 @@ t_data	*init_data(void)
 int	run(int argc, char **argv)
 {
 	int		i;
+	int		done;
 	int		settings[5];
 	t_data	*data;
 	int		*ptr;
@@ -404,6 +407,7 @@ int	run(int argc, char **argv)
 	while (data->playing)
 	{
 		i = 0;
+		done = 0;
 		while (i < data->settings->number_of_philosophers) //check also for everyone is full
 		{
 			if (starving(data->philos[i]))
@@ -412,7 +416,14 @@ int	run(int argc, char **argv)
 //				pthread_detach(data->philos[i]->tid);
 				kill_philo(data, data->philos[i]);
 			}
+			if (data->settings->number_of_times_each_philosopher_must_eat > -1 && data->philos[i]->times_eaten >= data->settings->number_of_times_each_philosopher_must_eat)
+				done += 1;
 			++i;
+		}
+		if (done == data->settings->number_of_philosophers)
+		{
+			data->playing = 0;
+			printf("Everyone has eaten enough!!\n"); //
 		}
 		usleep(SLEEP_INT);
 	}
