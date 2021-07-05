@@ -5,17 +5,12 @@
 #  define SLEEP_INT 1
 # endif
 
-typedef struct s_fork
-{
-	pthread_mutex_t	lock;
-}				t_fork;
-
 typedef struct s_philo
 {
 	int				id;
 	pthread_t		tid;
-	t_fork			*left_fork;
-	t_fork			*right_fork;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
 	int				alive;
 	struct s_data	*data;
 	long int		start_time;
@@ -28,7 +23,7 @@ typedef struct s_data
 {
 	int				playing;
 	pthread_mutex_t	taking_forks;
-	t_fork			*forks;
+	pthread_mutex_t	*forks;
 	t_philo			**philos;
 	long int		start_time;
 	pthread_mutex_t	log_lock;

@@ -73,9 +73,9 @@ int	starving(t_philo *philo)
 	return (time_since_meal > (long int)philo->data->time_to_die);
 }
 
-int	drop_fork(t_fork *fork)
+int	drop_fork(pthread_mutex_t *fork)
 {
-	pthread_mutex_unlock(&(fork->lock));
+	pthread_mutex_unlock(fork);
 	return (1);
 }
 
@@ -86,13 +86,13 @@ int	drop_forks(t_philo *philo)
 	return (1);
 }
 
-int	take_fork(t_philo *philo, t_fork *fork)
+int	take_fork(t_philo *philo, pthread_mutex_t *fork)
 {
 	pthread_mutex_lock(&(philo->lock));
-	pthread_mutex_lock(&(fork->lock));
+	pthread_mutex_lock(fork);
 	if (!(philo->alive))
 	{
-		pthread_mutex_unlock(&(fork->lock));
+		pthread_mutex_unlock(fork);
 		return (0);
 	}
 	ft_log(philo, "has taken a fork");
@@ -102,8 +102,8 @@ int	take_fork(t_philo *philo, t_fork *fork)
 
 int	try_to_take_fork(t_philo *philo)
 {
-	t_fork	*first_fork;
-	t_fork	*second_fork;
+	pthread_mutex_t	*first_fork;
+	pthread_mutex_t	*second_fork;
 
 	if (philo->id % 2)
 	{
@@ -265,7 +265,7 @@ void	free_data(t_data **data_ptr)
 			pthread_mutex_destroy(&data->philos[i]->lock);
 			free(data->philos[i]);
 			data->philos[i] = NULL;
-			pthread_mutex_destroy(&data->forks[i].lock);
+			pthread_mutex_destroy(&data->forks[i]);
 			++i;
 		}
 	}
@@ -357,8 +357,10 @@ int	create_philos(t_data *data)
 int	create_forks(t_data *data)
 {
 	int	i;
+	size_t	size;
 
-	data->forks = (t_fork *)malloc(sizeof(*data->forks) * data->num_of_philos);
+	size = sizeof(*data->forks) * data->num_of_philos;
+	data->forks = (pthread_mutex_t *)malloc(size);
 	if (!data->forks)
 	{
 		free_data(&data);
@@ -367,7 +369,7 @@ int	create_forks(t_data *data)
 	i = 0;
 	while (i < data->num_of_philos)
 	{
-		if (pthread_mutex_init(&(data->forks[i].lock), NULL))
+		if (pthread_mutex_init(&(data->forks[i]), NULL))
 		{
 			free_data(&data);
 			return (-1);
