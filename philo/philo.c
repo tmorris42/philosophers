@@ -67,15 +67,14 @@ void	kill_philo(t_data *data, t_philo *philo)
 
 int	starving(t_philo *philo)
 {
-	int	dead;
+	long int	time_since_meal;
 
-	dead = (now_int() - philo->time_of_last_meal > (long int)philo->data->settings->time_to_die);
-	return (dead);
+	time_since_meal = (now_int() - philo->time_of_last_meal);
+	return (time_since_meal > (long int)philo->data->time_to_die);
 }
 
 int	drop_fork(t_fork *fork)
 {
-	fork->available = 1;
 	pthread_mutex_unlock(&(fork->lock));
 	return (1);
 }
@@ -96,7 +95,6 @@ int	take_fork(t_philo *philo, t_fork *fork)
 		pthread_mutex_unlock(&(fork->lock));
 		return (0);
 	}
-	fork->available = 0;
 	ft_log(philo, "has taken a fork");
 	pthread_mutex_unlock(&(philo->lock));
 	return (1);
@@ -140,7 +138,7 @@ void	philo_eat(t_philo *philo)
 		philo->time_of_last_meal = now_int();
 		ft_log(philo, "is eating");
 		pthread_mutex_unlock(&(philo->lock));
-		timer = now_int() + philo->data->settings->time_to_eat;
+		timer = now_int() + philo->data->time_to_eat;
 		ft_usleep(timer);
 		philo->times_eaten += 1;
 	}
@@ -157,7 +155,7 @@ void	philo_sleep(t_philo *philo)
 	{
 		ft_log(philo, "is sleeping");
 		pthread_mutex_unlock(&(philo->lock));
-		timer = now_int() + philo->data->settings->time_to_sleep;
+		timer = now_int() + philo->data->time_to_sleep;
 		ft_usleep(timer);
 	}
 	else
@@ -199,7 +197,7 @@ t_philo	*create_philo(int id, t_data *data)
 	if (id)
 		philo->right_fork = &data->forks[id - 1];
 	else
-		philo->right_fork = &data->forks[data->settings->num_of_philos - 1];
+		philo->right_fork = &data->forks[data->num_of_philos - 1];
 	philo->alive = 1;
 	philo->data = data;
 	philo->times_eaten = 0;
@@ -227,32 +225,28 @@ int	parse_argument(char *arg)
 	return (value);
 }
 
-t_settings	*get_settings(int argc, char **argv)
+int	get_settings(int argc, char **argv, t_data *data)
 {
 	int			i;
 	int			settings_array[5];
-	t_settings	*ss;
 
 	if (argc < 5 || argc > 6)
-		return (NULL);
+		return (-1);
 	settings_array[4] = -1;
 	i = 1;
 	while (argc > 1 && i < argc)
 	{
 		settings_array[i - 1] = parse_argument(argv[i]);
 		if (settings_array[i - 1] < 0)
-			return (NULL);
+			return (-1);
 		++i;
 	}
-	ss = (t_settings *)malloc(sizeof(*ss));
-	if (!ss)
-		return (NULL);
-	ss->num_of_philos = settings_array[0];
-	ss->time_to_die = settings_array[1];
-	ss->time_to_eat = settings_array[2];
-	ss->time_to_sleep = settings_array[3];
-	ss->number_eats = settings_array[4];
-	return (ss);
+	data->num_of_philos = settings_array[0];
+	data->time_to_die = settings_array[1];
+	data->time_to_eat = settings_array[2];
+	data->time_to_sleep = settings_array[3];
+	data->number_eats = settings_array[4];
+	return (0);
 }
 
 void	free_data(t_data **data_ptr)
@@ -263,10 +257,10 @@ void	free_data(t_data **data_ptr)
 	data = (*data_ptr);
 	pthread_mutex_destroy(&data->taking_forks);
 	pthread_mutex_destroy(&data->log_lock);
-	if (data->philos && data->settings)
+	if (data->philos && data->num_of_philos)
 	{
 		i = 0;
-		while (i < data->settings->num_of_philos)
+		while (i < data->num_of_philos)
 		{
 			pthread_mutex_destroy(&data->philos[i]->lock);
 			free(data->philos[i]);
@@ -277,7 +271,6 @@ void	free_data(t_data **data_ptr)
 	}
 	free(data->philos);
 	free(data->forks);
-	free(data->settings);
 	free(data);
 	(*data_ptr) = NULL;
 }
@@ -290,7 +283,6 @@ t_data	*init_data(void)
 	if (!data)
 		return (NULL);
 	data->playing = 1;
-	data->settings = NULL;
 	data->philos = NULL;
 	data->forks = NULL; //should be an array of mutex entries for the forks
 	data->start_time = now_int();
@@ -314,7 +306,7 @@ int	create_threads(t_data *data)
 	t_philo	*philo;
 
 	i = 0;
-	while (i < data->settings->num_of_philos)
+	while (i < data->num_of_philos)
 	{
 		philo = data->philos[i];
 		if (pthread_create(&((philo)->tid), NULL, start_philo, philo))
@@ -327,7 +319,7 @@ int	create_threads(t_data *data)
 				--i;
 			}
 			free_data(&data);
-			return (-1); //clean up first, including created threads!!!
+			return (-1);
 		}
 		++i;
 	}
@@ -338,16 +330,16 @@ int	create_philos(t_data *data)
 {
 	int	i;
 
-	data->philos = (t_philo **)malloc(sizeof(*data->philos) * data->settings->num_of_philos);
+	data->philos = (t_philo **)malloc(sizeof(*data->philos) * data->num_of_philos);
 	if (!data->philos)
 	{
 		free_data(&data);
 		return (-1);
 	}
-	memset(data->philos, 0, data->settings->num_of_philos * sizeof(*(data->philos)));
+	memset(data->philos, 0, data->num_of_philos * sizeof(*(data->philos)));
 	i = 0;
 	data->start_time = now_int();
-	while (i < data->settings->num_of_philos)
+	while (i < data->num_of_philos)
 	{
 		data->philos[i] = create_philo(i, data);
 		if (!(data->philos[i]))
@@ -364,14 +356,14 @@ int	create_forks(t_data *data)
 {
 	int	i;
 
-	data->forks = (t_fork *)malloc(sizeof(*data->forks) * data->settings->num_of_philos);
+	data->forks = (t_fork *)malloc(sizeof(*data->forks) * data->num_of_philos);
 	if (!data->forks)
 	{
 		free_data(&data);
 		return (-1);
 	}
 	i = 0;
-	while (i < data->settings->num_of_philos)
+	while (i < data->num_of_philos)
 	{
 		if (pthread_mutex_init(&(data->forks[i].lock), NULL))
 		{
@@ -379,7 +371,6 @@ int	create_forks(t_data *data)
 			return (-1);
 		}
 		data->forks[i].id = i;
-		data->forks[i].available = 1;
 		++i;
 	}
 	return (0);
@@ -392,18 +383,18 @@ int	check_end_conditions(t_data *data)
 
 	i = 0;
 	done = 0;
-	while (i < data->settings->num_of_philos)
+	while (i < data->num_of_philos)
 	{
 		pthread_mutex_lock(&(data->philos[i]->lock));
 		if (starving(data->philos[i]))
 			kill_philo(data, data->philos[i]);
 		pthread_mutex_unlock(&(data->philos[i]->lock));
-		if (data->settings->number_eats > -1)
-			if (data->philos[i]->times_eaten >= data->settings->number_eats)
+		if (data->number_eats > -1)
+			if (data->philos[i]->times_eaten >= data->number_eats)
 				done += 1;
 		++i;
 	}
-	if (done == data->settings->num_of_philos)
+	if (done == data->num_of_philos)
 	{
 		data->playing = 0;
 	}
@@ -417,7 +408,7 @@ void	rejoin_threads(t_data *data)
 	int	*ptr;
 
 	i = 0;
-	while (i < data->settings->num_of_philos)
+	while (i < data->num_of_philos)
 	{
 		pthread_join(data->philos[i]->tid, (void **)&ptr);
 		++i;
@@ -435,7 +426,7 @@ int	usage(t_data **data)
 	i = 44;
 	write(2, "[number_of_times_each_philosopher_must_eat]\n", i);
 	free_data(data);
-	return (-1); //cleanup first
+	return (-1);
 }
 
 int	run(int argc, char **argv)
@@ -444,15 +435,9 @@ int	run(int argc, char **argv)
 
 	data = init_data();
 	if (!data)
-		return (-1); //cleanup first
-	data->settings = get_settings(argc, argv);
-	if (!(data->settings))
-	{
-		write(2, "Usage\n", 6);
-		free_data(&data);
 		return (-1);
-	}
-//		return (usage(&data));
+	if (get_settings(argc, argv, data) < 0)
+		return (usage(&data));
 	if (create_forks(data) < 0)
 		return (-1);
 	if (create_philos(data) < 0)
