@@ -3,7 +3,7 @@ import logging
 import os
 import subprocess
 
-TIME_TO_WAIT_FOR_DEATH = 30 # in seconds
+TIME_TO_WAIT_FOR_DEATH = 5 # in seconds
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -83,9 +83,12 @@ def test_dying_philos():
             elif cmd[1]:
                 logger.info(f"{to_print}{RED}FAILED{RESET} (No death)")
                 logger.debug("\n" + result)
-            else:
+            elif "died" in result:
                 logger.info(f"{to_print}{RED}FAILED{RESET} (Accidental death)")
                 logger.debug("\n" + result)
+            else:
+                logger.info(f"{to_print}{GREEN}PASSED{RESET} (No death!)")
+                passed += 1
         except subprocess.CalledProcessError as e:
                 logger.info(f"{to_print}{RED}FAILED{RESET} (Returned Error Code)")
         except subprocess.TimeoutExpired as e:
