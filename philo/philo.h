@@ -32,4 +32,7 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				number_eats;
 }	t_data;
+
+int	starving(t_philo *philo);
+
 #endif

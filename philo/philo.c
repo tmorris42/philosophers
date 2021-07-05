@@ -6,8 +6,6 @@
 #include <pthread.h>
 #include "philo.h"
 
-int	starving(t_philo *philo);
-
 long int	timeval_to_long_int(struct timeval time)
 {
 	return ((long int)time.tv_sec * 1000 + (long int)time.tv_usec / 1000);
