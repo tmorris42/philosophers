@@ -1,13 +1,17 @@
 #ifndef PHILO_H
 # define PHILO_H
 
+# ifndef SLEEP_INT
+#  define SLEEP_INT 1
+# endif
+
 typedef struct s_settings
 {
-	int	number_of_philosophers;
+	int	num_of_philos;
 	int	time_to_die;
 	int	time_to_eat;
 	int	time_to_sleep;
-	int	number_of_times_each_philosopher_must_eat;
+	int	number_eats;
 }				t_settings;
 
 typedef struct s_fork
