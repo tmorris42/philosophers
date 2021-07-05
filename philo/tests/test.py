@@ -111,12 +111,15 @@ def test_one_philo():
     result = subprocess.check_output(cmd, shell=True, text=True, timeout=(TIME_TO_WAIT_FOR_DEATH))
     if "died" not in result:
         logger.info(f"{to_print}{RED}FAILED{RESET} (No death)")
+        logger.debug("\n" + result)
     elif "fork" not in result:
         logger.info(f"{to_print}{RED}FAILED{RESET} (Didn't take fork)")
-    elif len(result.split("\n")) != 2:
+        logger.debug("\n" + result)
+    elif len(result.split("\n")) != 3:
         logger.info(f"{to_print}{RED}FAILED{RESET} (too many messages)")
+        logger.debug("\n" + result)
     else:
-        logger.info(f"{to_print}{GREEN}PASSED{RESET} (too many messages)")
+        logger.info(f"{to_print}{GREEN}PASSED{RESET} (took a fork and died)")
         passed += 1
     return (passed, total)
 
