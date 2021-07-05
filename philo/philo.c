@@ -63,7 +63,7 @@ void	kill_philo(t_data *data, t_philo *philo)
 	pthread_mutex_unlock(&(philo->data->log_lock));
 }
 
-int	starving(t_philo *philo)
+int	is_starving(t_philo *philo)
 {
 	long int	time_since_meal;
 
@@ -131,7 +131,7 @@ void	philo_eat(t_philo *philo)
 	long int	timer;
 
 	pthread_mutex_lock(&(philo->lock));
-	if (philo->data->playing && philo->alive && !starving(philo))
+	if (philo->data->playing && philo->alive && !is_starving(philo))
 	{
 		philo->time_of_last_meal = now_int();
 		ft_log(philo, "is eating");
@@ -381,7 +381,7 @@ int	check_end_conditions(t_data *data)
 	while (i < data->num_of_philos)
 	{
 		pthread_mutex_lock(&(data->philos[i]->lock));
-		if (starving(data->philos[i]))
+		if (is_starving(data->philos[i]))
 			kill_philo(data, data->philos[i]);
 		pthread_mutex_unlock(&(data->philos[i]->lock));
 		if (data->number_eats > -1)
