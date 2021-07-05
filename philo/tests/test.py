@@ -72,7 +72,7 @@ def test_dying_philos():
                 result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=cmd[1]+0.01)
             else:
                 result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=TIME_TO_WAIT_FOR_DEATH)
-            if "has died" in result and cmd[1]:
+            if "died" in result and cmd[1]:
                 print(f"{GREEN}PASSED{RESET} (Death!)")
                 passed += 1
             elif cmd[1]:
