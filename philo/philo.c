@@ -424,7 +424,7 @@ int	usage(t_data **data)
 	return (-1);
 }
 
-int	run(int argc, char **argv)
+int	main(int argc, char **argv)
 {
 	t_data	*data;
 
@@ -444,12 +444,4 @@ int	run(int argc, char **argv)
 	rejoin_threads(data);
 	free_data(&data);
 	return (0);
-}
-
-int	main(int argc, char **argv)
-{
-	int	ret;
-
-	ret = run(argc, argv);
-	return (ret);
 }
