@@ -128,7 +128,7 @@ int	try_to_take_fork(t_philo *philo)
 
 void	philo_eat(t_philo *philo)
 {
-	long int	timer;
+	long int	stop_time;
 
 	pthread_mutex_lock(&(philo->lock));
 	if (philo->data->playing && philo->alive && !is_starving(philo))
@@ -136,8 +136,8 @@ void	philo_eat(t_philo *philo)
 		philo->time_of_last_meal = now_int();
 		ft_log(philo, "is eating");
 		pthread_mutex_unlock(&(philo->lock));
-		timer = now_int() + philo->data->time_to_eat;
-		ft_usleep(timer);
+		stop_time = now_int() + philo->data->time_to_eat;
+		ft_usleep(stop_time);
 		philo->times_eaten += 1;
 	}
 	else
@@ -146,15 +146,15 @@ void	philo_eat(t_philo *philo)
 
 void	philo_sleep(t_philo *philo)
 {
-	long int	timer;
+	long int	stop_time;
 
 	pthread_mutex_lock(&(philo->lock));
 	if (philo->data->playing && philo->alive)
 	{
 		ft_log(philo, "is sleeping");
 		pthread_mutex_unlock(&(philo->lock));
-		timer = now_int() + philo->data->time_to_sleep;
-		ft_usleep(timer);
+		stop_time = now_int() + philo->data->time_to_sleep;
+		ft_usleep(stop_time);
 	}
 	else
 		pthread_mutex_unlock(&(philo->lock));
