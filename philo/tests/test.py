@@ -104,7 +104,7 @@ def test_one_philo():
     passed = 0
     total = 1
     cmd = "./philo 1 400 100 100"
-    logger.info("Testing single philosopher death")
+    logger.info(f"{WHITE}Testing single philosopher death{RESET}")
     cmd += " " * (25 - len(cmd))
 #    cmd += f"expect death"*(cmd[1] > 0)
     to_print = cmd + "." * (45 - len(cmd))
