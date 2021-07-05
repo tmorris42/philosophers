@@ -57,7 +57,8 @@ void	kill_philo(t_data *data, t_philo *philo)
 	long int		delta_time;
 	struct timeval	time;
 
-	pthread_mutex_lock(&(philo->lock));
+//	pthread_mutex_lock(&(philo->lock));
+	
 	pthread_mutex_lock(&(data->log_lock));
 	if (philo->data->playing && philo->alive)
 	{
@@ -70,7 +71,7 @@ void	kill_philo(t_data *data, t_philo *philo)
 		printf(" %d died\n", philo->id + 1);
 	}
 	pthread_mutex_unlock(&(philo->data->log_lock));
-	pthread_mutex_unlock(&(philo->lock));
+//	pthread_mutex_unlock(&(philo->lock));
 }
 
 int	starving(t_philo *philo)
@@ -102,6 +103,7 @@ int	drop_forks(t_philo *philo)
 
 int	take_fork(t_philo *philo, t_fork *fork)
 {
+	pthread_mutex_lock(&(philo->lock));
 	pthread_mutex_lock(&(fork->lock));
 	if (!(philo->alive))
 	{
@@ -110,6 +112,7 @@ int	take_fork(t_philo *philo, t_fork *fork)
 	}
 	fork->available = 0;
 	ft_log(philo, "has taken a fork");
+	pthread_mutex_unlock(&(philo->lock));
 	return (1);
 }
 
@@ -131,6 +134,7 @@ void	*start_philo(void *p)
 			while (philo->alive)
 				usleep(1);
 			drop_fork(philo->left_fork);
+			continue ;
 		}
 //			continue ;
 //		pthread_mutex_lock(&(philo->data->taking_forks));
@@ -139,12 +143,24 @@ void	*start_philo(void *p)
 		if (philo->id % 2)
 		{
 			take_fork(philo, philo->left_fork);
-			take_fork(philo, philo->right_fork);
+			if (philo->alive)
+				take_fork(philo, philo->right_fork);
+			else
+			{
+				drop_fork(philo->left_fork);
+				continue ;
+			}
 		}
 		else
 		{
 			take_fork(philo, philo->right_fork);
-			take_fork(philo, philo->left_fork);
+			if (philo->alive)
+				take_fork(philo, philo->left_fork);
+			else
+			{
+				drop_fork(philo->right_fork);
+				continue ;
+			}
 		}
 //			pthread_mutex_unlock(&(philo->data->taking_forks));
 //		}
@@ -200,10 +216,12 @@ void	*start_philo(void *p)
 //		pthread_mutex_unlock(&(philo->left_fork->lock));
 //		pthread_mutex_unlock(&(philo->right_fork->lock));
 
+		pthread_mutex_lock(&(philo->lock));
 		if (philo->data->playing && philo->alive)
 		{
 			// Sleeping
 			ft_log(philo, "is sleeping");
+			pthread_mutex_unlock(&(philo->lock));
 			timer = now_int() + philo->data->settings->time_to_sleep;
 			ft_usleep(timer);
 //			while (philo->data->playing && !starving(philo) && now_int() < timer)
@@ -211,6 +229,8 @@ void	*start_philo(void *p)
 //				usleep(SLEEP_INT);
 //			}
 		}
+		else
+			pthread_mutex_unlock(&(philo->lock));
 //		ft_log(philo, "is done sleeping");
 	}
 	return (p);
@@ -230,6 +250,7 @@ t_philo	*create_philo(int id, t_data *data)
 		return (NULL);
 
 	philo->id = id;
+	pthread_mutex_init(&(philo->lock), NULL);
 	philo->left_fork = &data->forks[id];
 	if (id)
 		philo->right_fork = &data->forks[id - 1];
@@ -311,6 +332,7 @@ void	free_data(t_data **data_ptr)
 		while (i < data->settings->number_of_philosophers)
 		{
 			free(data->philos[i]);
+			pthread_mutex_destroy(&data->philos[i]->lock);
 			data->philos[i] = NULL;
 			++i;
 		}
