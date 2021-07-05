@@ -38,6 +38,7 @@ void	ft_log(t_philo *philo, char *msg)
 	long int		delta_time;
 	struct timeval	time;
 
+//	pthread_mutex_lock(&(philo->lock));
 	pthread_mutex_lock(&(philo->data->log_lock));
 	if (philo->data->playing && philo->alive)
 	{
@@ -48,6 +49,7 @@ void	ft_log(t_philo *philo, char *msg)
 		printf(" %d %s\n", philo->id + 1, msg);
 	}
 	pthread_mutex_unlock(&(philo->data->log_lock));
+//	pthread_mutex_unlock(&(philo->lock));
 }
 
 void	kill_philo(t_data *data, t_philo *philo)
@@ -55,6 +57,7 @@ void	kill_philo(t_data *data, t_philo *philo)
 	long int		delta_time;
 	struct timeval	time;
 
+	pthread_mutex_lock(&(philo->lock));
 	pthread_mutex_lock(&(data->log_lock));
 	if (philo->data->playing && philo->alive)
 	{
@@ -67,13 +70,14 @@ void	kill_philo(t_data *data, t_philo *philo)
 		printf(" %d died\n", philo->id + 1);
 	}
 	pthread_mutex_unlock(&(philo->data->log_lock));
+	pthread_mutex_unlock(&(philo->lock));
 }
 
 int	starving(t_philo *philo)
 {
 	int	dead;
 
-	dead = (now_int() - philo->time_of_last_meal >= (long int)philo->data->settings->time_to_die);
+	dead = (now_int() - philo->time_of_last_meal > (long int)philo->data->settings->time_to_die);
 //	if (philo->alive && dead)
 	{
 //		philo->alive = 0;
@@ -84,19 +88,21 @@ int	starving(t_philo *philo)
 
 int	drop_forks(t_philo *philo)
 {
-	pthread_mutex_lock(&(philo->data->taking_forks));
+//	pthread_mutex_lock(&(philo->data->taking_forks));
 	philo->left_fork->available = 1;
+	pthread_mutex_unlock(&(philo->left_fork->lock));
 	philo->right_fork->available = 1;
-	pthread_mutex_unlock(&(philo->data->taking_forks));
+	pthread_mutex_unlock(&(philo->right_fork->lock));
+//	pthread_mutex_unlock(&(philo->data->taking_forks));
 	return (1);
 }
 
 int	take_fork(t_philo *philo, t_fork *fork)
 {
-//	pthread_mutex_lock(&(fork->lock));
+	pthread_mutex_lock(&(fork->lock));
 	if (!(philo->alive))
 	{
-//		pthread_mutex_unlock(&(fork->lock));
+		pthread_mutex_unlock(&(fork->lock));
 		return (0);
 	}
 	fork->available = 0;
@@ -118,19 +124,27 @@ void	*start_philo(void *p)
 //			philo->alive = 0;
 		if (philo->left_fork == philo->right_fork)
 			continue ;
-		pthread_mutex_lock(&(philo->data->taking_forks));
-		if (philo->left_fork->available && philo->right_fork->available)
+//		pthread_mutex_lock(&(philo->data->taking_forks));
+//		if (philo->left_fork->available && philo->right_fork->available)
+//		{
+		if (philo->id % 2)
 		{
 			take_fork(philo, philo->left_fork);
 			take_fork(philo, philo->right_fork);
-			pthread_mutex_unlock(&(philo->data->taking_forks));
 		}
 		else
 		{
-			pthread_mutex_unlock(&(philo->data->taking_forks));
-			usleep(SLEEP_INT);
-			continue ;
+			take_fork(philo, philo->right_fork);
+			take_fork(philo, philo->left_fork);
 		}
+//			pthread_mutex_unlock(&(philo->data->taking_forks));
+//		}
+//		else
+//		{
+//			pthread_mutex_unlock(&(philo->data->taking_forks));
+//			usleep(SLEEP_INT);
+//			continue ;
+//		}
 /*		if (philo->id % 2)
 		{
 			if (!philo->data->playing || !(take_fork(philo, philo->left_fork)))
@@ -153,10 +167,12 @@ void	*start_philo(void *p)
 		}
 		*/
 //		if (philo->data->playing && !starving(philo))
+		pthread_mutex_lock(&(philo->lock));
 		if (philo->data->playing && philo->alive)
 		{
 			philo->time_of_last_meal = now_int();
 			ft_log(philo, "is eating");
+			pthread_mutex_unlock(&(philo->lock));
 			//eating here
 			timer = now_int() + philo->data->settings->time_to_eat;
 			ft_usleep(timer);
@@ -167,6 +183,9 @@ void	*start_philo(void *p)
 			philo->times_eaten += 1;
 //			ft_log(philo, "is done eating");
 		}
+		else
+			pthread_mutex_unlock(&(philo->lock));
+
 		drop_forks(philo);
 //		ft_log(philo, "dropped forks");
 //		pthread_mutex_unlock(&(philo->left_fork->lock));
@@ -412,12 +431,14 @@ int	run(int argc, char **argv)
 		done = 0;
 		while (i < data->settings->number_of_philosophers) //check also for everyone is full
 		{
+			pthread_mutex_lock(&(data->philos[i]->lock));
 			if (starving(data->philos[i]))
 			{
 				//kill philo
 //				pthread_detach(data->philos[i]->tid);
 				kill_philo(data, data->philos[i]);
 			}
+			pthread_mutex_unlock(&(data->philos[i]->lock));
 			if (data->settings->number_of_times_each_philosopher_must_eat > -1 && data->philos[i]->times_eaten >= data->settings->number_of_times_each_philosopher_must_eat)
 				done += 1;
 			++i;

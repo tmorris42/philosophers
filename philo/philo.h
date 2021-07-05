@@ -28,6 +28,7 @@ typedef struct s_philo
 	long int		start_time;
 	long int		time_of_last_meal;
 	int				times_eaten;
+	pthread_mutex_t	lock;
 }	t_philo;
 
 typedef struct s_data
