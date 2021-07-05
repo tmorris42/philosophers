@@ -255,7 +255,6 @@ void	free_data(t_data **data_ptr)
 	int		i;
 
 	data = (*data_ptr);
-	pthread_mutex_destroy(&data->taking_forks);
 	pthread_mutex_destroy(&data->log_lock);
 	if (data->philos && data->num_of_philos)
 	{
@@ -286,11 +285,6 @@ t_data	*init_data(void)
 	data->philos = NULL;
 	data->forks = NULL; //should be an array of mutex entries for the forks
 	data->start_time = now_int();
-	if (pthread_mutex_init(&data->taking_forks, NULL))
-	{
-		free_data(&data);
-		return (NULL);
-	}
 	if (pthread_mutex_init(&data->log_lock, NULL))
 	{
 		free_data(&data);

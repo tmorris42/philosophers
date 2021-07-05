@@ -21,12 +21,11 @@ typedef struct s_philo
 
 typedef struct s_data
 {
-	int				playing;
-	pthread_mutex_t	taking_forks;
+	pthread_mutex_t	log_lock;
 	pthread_mutex_t	*forks;
 	t_philo			**philos;
+	int				playing;
 	long int		start_time;
-	pthread_mutex_t	log_lock;
 	int				num_of_philos;
 	int				time_to_die;
 	int				time_to_eat;
