@@ -45,7 +45,7 @@ void	ft_log(t_philo *philo, char *msg)
 		gettimeofday(&time, NULL);
 		delta_time = timeval_to_long_int(time);
 		delta_time -= philo->start_time;
-		printf("%ldms", delta_time);
+		printf("%.11ld", delta_time);
 		printf(" %d %s\n", philo->id + 1, msg);
 	}
 	pthread_mutex_unlock(&(philo->data->log_lock));
@@ -67,7 +67,7 @@ void	kill_philo(t_data *data, t_philo *philo)
 		gettimeofday(&time, NULL);
 		delta_time = timeval_to_long_int(time);
 		delta_time -= philo->start_time;
-		printf("%ldms", delta_time);
+		printf("%.11ld", delta_time);
 		printf(" %d died\n", philo->id + 1);
 	}
 	pthread_mutex_unlock(&(philo->data->log_lock));
