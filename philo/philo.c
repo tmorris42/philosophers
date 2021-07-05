@@ -370,7 +370,6 @@ int	create_forks(t_data *data)
 			free_data(&data);
 			return (-1);
 		}
-		data->forks[i].id = i;
 		++i;
 	}
 	return (0);

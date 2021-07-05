@@ -7,7 +7,6 @@
 
 typedef struct s_fork
 {
-	int				id;
 	pthread_mutex_t	lock;
 }				t_fork;
 
