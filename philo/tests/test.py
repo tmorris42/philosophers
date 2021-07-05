@@ -1,3 +1,5 @@
+import datetime
+import logging
 import os
 import subprocess
 
@@ -8,7 +10,10 @@ GREEN = "\033[32m"
 WHITE = "\033[37m"
 RESET = "\033[0m"
 
+LOGFILE = datetime.datetime.now().strftime("./logs/%Y-%m-%d-%H-%M-%S.log")
+
 def test_error_codes():
+    logger = logging.getLogger("philo_tester")
     cmds = [
             ("./philo", -1),
             ("./philo 2 2 3 4", 0),
@@ -21,7 +26,7 @@ def test_error_codes():
             ("./philo 2 3 4 5 6 7", -1),
             ]
 
-    print(f"{WHITE}Testing error codes{RESET}")
+    logger.info(f"{WHITE}Testing error codes{RESET}")
     passed = 0;
     total = 0;
     for cmd in cmds:
@@ -29,36 +34,37 @@ def test_error_codes():
         header = f"{cmd[0]}"
         header += " " * (25 - len(header))
         header += f"expecting [{cmd[1]}]"
-        print(header + "." * (45 - len(header)), end="")
+        to_print = header + "." * (45 - len(header))
         try:
             result = subprocess.check_output(cmd[0], shell=True, stderr=subprocess.STDOUT, text=True)
             if cmd[1] == 0:
-                print(f"{GREEN}PASSED{RESET} (No Error Code)")
+                logger.info(f"{to_print}{GREEN}PASSED{RESET} (No Error Code)")
                 passed += 1
             else:
-                print(f"{RED}FAILED{RESET} (No Error Code")
+                logger.info(f"{to_print}{RED}FAILED{RESET} (No Error Code")
 
         except subprocess.CalledProcessError as e:
             if cmd[1] == -1:
-                print(f"{GREEN}PASSED{RESET} (Returned Error Code)")
+                logger.info(f"{to_print}{GREEN}PASSED{RESET} (Returned Error Code)")
                 passed += 1
             else:
-                print(f"{RED}FAILED{RESET} (Returned Error Code)")
+                logger.info(f"{RED}FAILED{RESET} (Returned Error Code)")
     return (passed, total)
 
 def test_dying_philos():
+    logger = logging.getLogger("philo_tester")
     base = "./philo "
     cmds = [
             ("2 1 200 10", 1),
             ("4 310 200 100", 1), #from correction
-            ("4 310 200 100", 10),
+            ("4 310 200 100", 310),
             ("2 1000 2 2", 0),
             ("4 410 200 200", 0), #from correct?
             ("5 800 200 200", 0),
             ("5 800 200 200 7", 0), #also an everyone eats test
             ]
 
-    print(f"{WHITE}Testing death conditions{RESET}")
+    logger.info(f"{WHITE}Testing death conditions{RESET}")
     passed = 0;
     total = 0;
     for cmd in cmds:
@@ -66,26 +72,28 @@ def test_dying_philos():
         header = f"{base}{cmd[0]}"
         header += " " * (25 - len(header))
         header += f"expect death"*(cmd[1] > 0)
-        print(header + "." * (45 - len(header)), end="")
+        to_print = header + "." * (45 - len(header))
         try:
             if (cmd[1]):
-                result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=cmd[1]+0.01)
+                result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=(TIME_TO_WAIT_FOR_DEATH))
             else:
                 result = subprocess.check_output(base+cmd[0], shell=True, text=True, timeout=TIME_TO_WAIT_FOR_DEATH)
             if "died" in result and cmd[1]:
-                print(f"{GREEN}PASSED{RESET} (Death!)")
+                logger.info(f"{to_print}{GREEN}PASSED{RESET} (Death!)")
                 passed += 1
             elif cmd[1]:
-                print(f"{RED}FAILED{RESET} (No death)")
+                logger.info(f"{to_print}{RED}FAILED{RESET} (No death)")
+                logger.debug("\n" + result)
             else:
-                print(f"{RED}FAILED{RESET} (Accidental death)")
+                logger.info(f"{to_print}{RED}FAILED{RESET} (Accidental death)")
+                logger.debug("\n" + result)
         except subprocess.CalledProcessError as e:
-                print(f"{RED}FAILED{RESET} (Returned Error Code)")
+                logger.info(f"{to_print}{RED}FAILED{RESET} (Returned Error Code)")
         except subprocess.TimeoutExpired as e:
             if cmd[1]:
-                print(f"{RED}FAILED{RESET} (no death in time)")
+                logger.info(f"{to_print}{RED}FAILED{RESET} (no death in time)")
             else:
-                print(f"{GREEN}PASSED{RESET} (no death in time)")
+                logger.info(f"{to_print}{GREEN}PASSED{RESET} (no death in time)")
                 passed += 1
     return (passed, total)
 
@@ -97,6 +105,16 @@ if __name__ == '__main__':
         except subprocess.CalledProcessError as e:
             print("Could not create logs directory")
             exit()
+    logger = logging.getLogger("philo_tester")
+    formatter = logging.Formatter("%(message)s")
+    file_handler = logging.FileHandler(LOGFILE)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+    logger.setLevel(logging.DEBUG)
     passed, total = 0, 0
 
     test_functions = [
@@ -109,4 +127,4 @@ if __name__ == '__main__':
         total += new_total
         print("\n")
 
-    print(f"{WHITE}Score: {GREEN*(passed == total)+RED*(passed != total)}{passed}/{total}{RESET}")
+    logger.info(f"{WHITE}Score: {GREEN*(passed == total)+RED*(passed != total)}{passed}/{total}{RESET}")
