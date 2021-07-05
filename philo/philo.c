@@ -7,7 +7,7 @@
 #include "philo.h"
 
 # ifndef SLEEP_INT
-#  define SLEEP_INT 0
+#  define SLEEP_INT 1
 # endif
 
 int	starving(t_philo *philo);
@@ -25,11 +25,20 @@ long int	now_int(void)
 	return (timeval_to_long_int(time));
 }
 
+void	ft_usleep(long int finish)
+{
+	while (now_int() < finish)
+	{
+		usleep(SLEEP_INT);
+	}
+}
+
 void	ft_log(t_philo *philo, char *msg)
 {
 	long int		delta_time;
 	struct timeval	time;
 
+//	pthread_mutex_lock(&(philo->lock));
 	pthread_mutex_lock(&(philo->data->log_lock));
 	if (philo->data->playing && philo->alive)
 	{
@@ -40,26 +49,61 @@ void	ft_log(t_philo *philo, char *msg)
 		printf(" %d %s\n", philo->id + 1, msg);
 	}
 	pthread_mutex_unlock(&(philo->data->log_lock));
+//	pthread_mutex_unlock(&(philo->lock));
+}
+
+void	kill_philo(t_data *data, t_philo *philo)
+{
+	long int		delta_time;
+	struct timeval	time;
+
+	pthread_mutex_lock(&(philo->lock));
+	pthread_mutex_lock(&(data->log_lock));
+	if (philo->data->playing && philo->alive)
+	{
+		data->playing = 0;
+		philo->alive = 0;
+		gettimeofday(&time, NULL);
+		delta_time = timeval_to_long_int(time);
+		delta_time -= philo->start_time;
+		printf("%ldms", delta_time);
+		printf(" %d died\n", philo->id + 1);
+	}
+	pthread_mutex_unlock(&(philo->data->log_lock));
+	pthread_mutex_unlock(&(philo->lock));
 }
 
 int	starving(t_philo *philo)
 {
 	int	dead;
 
-	dead = (now_int() - philo->time_of_last_meal >= (long int)philo->data->settings->time_to_die);
-	if (philo->alive && dead)
+	dead = (now_int() - philo->time_of_last_meal > (long int)philo->data->settings->time_to_die);
+//	if (philo->alive && dead)
 	{
-		ft_log(philo, "has died");
-		philo->alive = 0;
-		philo->data->playing = 0;
+//		philo->alive = 0;
+//		philo->data->playing = 0;
 	}
 	return (dead);
+}
+
+int	drop_fork(t_fork *fork)
+{
+	fork->available = 1;
+	pthread_mutex_unlock(&(fork->lock));
+	return (1);
+}
+
+int	drop_forks(t_philo *philo)
+{
+	drop_fork(philo->left_fork);
+	drop_fork(philo->right_fork);
+	return (1);
 }
 
 int	take_fork(t_philo *philo, t_fork *fork)
 {
 	pthread_mutex_lock(&(fork->lock));
-	if (starving(philo))
+	if (!(philo->alive))
 	{
 		pthread_mutex_unlock(&(fork->lock));
 		return (0);
@@ -79,11 +123,38 @@ void	*start_philo(void *p)
 	philo->time_of_last_meal = philo->start_time;
 	while (philo && philo->alive && philo->data->playing)
 	{
-		if (philo->data->playing && starving(philo))
-			philo->alive = 0;
+//		if (philo->data->playing && starving(philo))
+//			philo->alive = 0;
 		if (philo->left_fork == philo->right_fork)
-			continue ;
+		{
+			take_fork(philo, philo->left_fork);
+			while (philo->alive)
+				usleep(1);
+			drop_fork(philo->left_fork);
+		}
+//			continue ;
+//		pthread_mutex_lock(&(philo->data->taking_forks));
+//		if (philo->left_fork->available && philo->right_fork->available)
+//		{
 		if (philo->id % 2)
+		{
+			take_fork(philo, philo->left_fork);
+			take_fork(philo, philo->right_fork);
+		}
+		else
+		{
+			take_fork(philo, philo->right_fork);
+			take_fork(philo, philo->left_fork);
+		}
+//			pthread_mutex_unlock(&(philo->data->taking_forks));
+//		}
+//		else
+//		{
+//			pthread_mutex_unlock(&(philo->data->taking_forks));
+//			usleep(SLEEP_INT);
+//			continue ;
+//		}
+/*		if (philo->id % 2)
 		{
 			if (!philo->data->playing || !(take_fork(philo, philo->left_fork)))
 				break ;
@@ -103,31 +174,44 @@ void	*start_philo(void *p)
 				break ;
 			}
 		}
-		if (philo->data->playing && !starving(philo))
+		*/
+//		if (philo->data->playing && !starving(philo))
+		pthread_mutex_lock(&(philo->lock));
+		if (philo->data->playing && philo->alive)
 		{
 			philo->time_of_last_meal = now_int();
 			ft_log(philo, "is eating");
+			pthread_mutex_unlock(&(philo->lock));
 			//eating here
 			timer = now_int() + philo->data->settings->time_to_eat;
-			while (philo->data->playing && !starving(philo) && now_int() < timer)
-			{
-				usleep(SLEEP_INT);
-			}
+			ft_usleep(timer);
+//			while (philo->data->playing && !starving(philo) && now_int() < timer)
+//			{
+//				ft_usleep(SLEEP_INT);
+//			}
+			philo->times_eaten += 1;
+//			ft_log(philo, "is done eating");
 		}
+		else
+			pthread_mutex_unlock(&(philo->lock));
 
-		pthread_mutex_unlock(&(philo->left_fork->lock));
-		pthread_mutex_unlock(&(philo->right_fork->lock));
+		drop_forks(philo);
+//		ft_log(philo, "dropped forks");
+//		pthread_mutex_unlock(&(philo->left_fork->lock));
+//		pthread_mutex_unlock(&(philo->right_fork->lock));
 
-		if (philo->data->playing && !starving(philo) && philo->alive)
+		if (philo->data->playing && philo->alive)
 		{
 			// Sleeping
 			ft_log(philo, "is sleeping");
 			timer = now_int() + philo->data->settings->time_to_sleep;
-			while (philo->data->playing && !starving(philo) && now_int() < timer)
-			{
-				usleep(SLEEP_INT);
-			}
+			ft_usleep(timer);
+//			while (philo->data->playing && !starving(philo) && now_int() < timer)
+//			{
+//				usleep(SLEEP_INT);
+//			}
 		}
+//		ft_log(philo, "is done sleeping");
 	}
 	return (p);
 }
@@ -153,6 +237,7 @@ t_philo	*create_philo(int id, t_data *data)
 		philo->right_fork = &data->forks[data->settings->number_of_philosophers - 1];
 	philo->alive = 1;
 	philo->data = data;
+	philo->times_eaten = 0;
 	philo->start_time = now_int();
 	philo->time_of_last_meal = philo->start_time;
 	return (philo);
@@ -160,8 +245,8 @@ t_philo	*create_philo(int id, t_data *data)
 
 int	parse_argument(char *arg)
 {
-	int	i;
-	int	value;
+	int			i;
+	long int	value;
 
 	value = 0;
 	i = 0;
@@ -172,6 +257,8 @@ int	parse_argument(char *arg)
 		value = (value * 10) + (arg[i] - '0');
 		++i;
 	}
+	if (value > 2147483647)
+		return (-1);
 	return (value);
 }
 
@@ -272,6 +359,7 @@ t_data	*init_data(void)
 int	run(int argc, char **argv)
 {
 	int		i;
+	int		done;
 	int		settings[5];
 	t_data	*data;
 	int		*ptr;
@@ -283,7 +371,7 @@ int	run(int argc, char **argv)
 	data->settings = get_settings(argc, argv, &settings[0]);
 	if (!(data->settings))
 	{
-		printf("Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
+		write(2, "Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n", 120);
 		free_data(&data);
 		return (-1); //cleanup first
 	}
@@ -349,16 +437,27 @@ int	run(int argc, char **argv)
 	while (data->playing)
 	{
 		i = 0;
+		done = 0;
 		while (i < data->settings->number_of_philosophers) //check also for everyone is full
 		{
+			pthread_mutex_lock(&(data->philos[i]->lock));
 			if (starving(data->philos[i]))
 			{
 				//kill philo
 //				pthread_detach(data->philos[i]->tid);
-				data->playing = 0;
+				kill_philo(data, data->philos[i]);
 			}
+			pthread_mutex_unlock(&(data->philos[i]->lock));
+			if (data->settings->number_of_times_each_philosopher_must_eat > -1 && data->philos[i]->times_eaten >= data->settings->number_of_times_each_philosopher_must_eat)
+				done += 1;
 			++i;
 		}
+		if (done == data->settings->number_of_philosophers)
+		{
+			data->playing = 0;
+//			printf("Everyone has eaten enough!!\n"); //
+		}
+		usleep(SLEEP_INT);
 	}
 	i = 0;
 	while (i < data->settings->number_of_philosophers)
