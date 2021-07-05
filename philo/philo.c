@@ -283,7 +283,7 @@ t_data	*init_data(void)
 		return (NULL);
 	data->playing = 1;
 	data->philos = NULL;
-	data->forks = NULL; //should be an array of mutex entries for the forks
+	data->forks = NULL;
 	data->start_time = now_int();
 	if (pthread_mutex_init(&data->log_lock, NULL))
 	{
@@ -350,7 +350,7 @@ int	create_philos(t_data *data)
 
 int	create_forks(t_data *data)
 {
-	int	i;
+	int		i;
 	size_t	size;
 
 	size = sizeof(*data->forks) * data->num_of_philos;
