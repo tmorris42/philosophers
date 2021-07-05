@@ -86,14 +86,17 @@ int	starving(t_philo *philo)
 	return (dead);
 }
 
+int	drop_fork(t_fork *fork)
+{
+	fork->available = 1;
+	pthread_mutex_unlock(&(fork->lock));
+	return (1);
+}
+
 int	drop_forks(t_philo *philo)
 {
-//	pthread_mutex_lock(&(philo->data->taking_forks));
-	philo->left_fork->available = 1;
-	pthread_mutex_unlock(&(philo->left_fork->lock));
-	philo->right_fork->available = 1;
-	pthread_mutex_unlock(&(philo->right_fork->lock));
-//	pthread_mutex_unlock(&(philo->data->taking_forks));
+	drop_fork(philo->left_fork);
+	drop_fork(philo->right_fork);
 	return (1);
 }
 
@@ -123,7 +126,13 @@ void	*start_philo(void *p)
 //		if (philo->data->playing && starving(philo))
 //			philo->alive = 0;
 		if (philo->left_fork == philo->right_fork)
-			continue ;
+		{
+			take_fork(philo, philo->left_fork);
+			while (philo->alive)
+				usleep(1);
+			drop_fork(philo->left_fork);
+		}
+//			continue ;
 //		pthread_mutex_lock(&(philo->data->taking_forks));
 //		if (philo->left_fork->available && philo->right_fork->available)
 //		{
