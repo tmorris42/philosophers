@@ -331,8 +331,8 @@ void	free_data(t_data **data_ptr)
 		i = 0;
 		while (i < data->settings->number_of_philosophers)
 		{
-			free(data->philos[i]);
 			pthread_mutex_destroy(&data->philos[i]->lock);
+			free(data->philos[i]);
 			data->philos[i] = NULL;
 			++i;
 		}
