@@ -193,7 +193,7 @@ void	*start_philo(void *p)
 		*/
 //		if (philo->data->playing && !starving(philo))
 		pthread_mutex_lock(&(philo->lock));
-		if (philo->data->playing && philo->alive)
+		if (philo->data->playing && philo->alive && !starving(philo))
 		{
 			philo->time_of_last_meal = now_int();
 			ft_log(philo, "is eating");

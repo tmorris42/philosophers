@@ -3,7 +3,7 @@ import logging
 import os
 import subprocess
 
-TIME_TO_WAIT_FOR_DEATH = 5 # in seconds
+TIME_TO_WAIT_FOR_DEATH = 10 # in seconds
 
 RED = "\033[31m"
 GREEN = "\033[32m"
