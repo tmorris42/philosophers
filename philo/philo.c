@@ -328,9 +328,11 @@ int	create_threads(t_data *data)
 
 int	create_philos(t_data *data)
 {
-	int	i;
+	int		i;
+	size_t	size;
 
-	data->philos = (t_philo **)malloc(sizeof(*data->philos) * data->num_of_philos);
+	size = sizeof(*data->philos) * data->num_of_philos;
+	data->philos = (t_philo **)malloc(size);
 	if (!data->philos)
 	{
 		free_data(&data);
