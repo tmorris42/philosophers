@@ -176,8 +176,8 @@ void	*start_philo(void *p)
 		if (try_to_take_fork(philo) < 0)
 			continue ;
 		philo_eat(philo);
-		philo_sleep(philo);
 		drop_forks(philo);
+		philo_sleep(philo);
 	}
 	return (p);
 }
