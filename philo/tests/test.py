@@ -99,6 +99,26 @@ def test_dying_philos():
                 passed += 1
     return (passed, total)
 
+def test_one_philo():
+    logger = logging.getLogger("philo_tester")
+    passed = 0
+    total = 1
+    cmd = "./philo 1 400 100 100"
+    logger.info("Testing single philosopher death")
+    cmd += " " * (25 - len(cmd))
+#    cmd += f"expect death"*(cmd[1] > 0)
+    to_print = cmd + "." * (45 - len(cmd))
+    result = subprocess.check_output(cmd, shell=True, text=True, timeout=(TIME_TO_WAIT_FOR_DEATH))
+    if "died" not in result:
+        logger.info(f"{to_print}{RED}FAILED{RESET} (No death)")
+    elif "fork" not in result:
+        logger.info(f"{to_print}{RED}FAILED{RESET} (Didn't take fork)")
+    elif len(result.split("\n")) != 2:
+        logger.info(f"{to_print}{RED}FAILED{RESET} (too many messages)")
+    else:
+        logger.info(f"{to_print}{GREEN}PASSED{RESET} (too many messages)")
+        passed += 1
+    return (passed, total)
 
 if __name__ == '__main__':
     if not os.path.isdir("logs"):
@@ -121,12 +141,13 @@ if __name__ == '__main__':
 
     test_functions = [
             test_error_codes,
+            test_one_philo,
             test_dying_philos,
             ]
     for test in test_functions:
         new_passed, new_total = test()
         passed += new_passed
         total += new_total
-        print("\n")
+        logger.info("\n")
 
     logger.info(f"{WHITE}Score: {GREEN*(passed == total)+RED*(passed != total)}{passed}/{total}{RESET}")
