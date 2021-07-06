@@ -86,13 +86,13 @@ int	drop_forks(t_philo *philo)
 
 int	take_fork(t_philo *philo, pthread_mutex_t *fork)
 {
-	pthread_mutex_lock(&(philo->lock));
 	pthread_mutex_lock(fork);
 	if (!(philo->alive))
 	{
 		pthread_mutex_unlock(fork);
 		return (0);
 	}
+	pthread_mutex_lock(&(philo->lock));
 	ft_log(philo, "has taken a fork");
 	pthread_mutex_unlock(&(philo->lock));
 	return (1);
