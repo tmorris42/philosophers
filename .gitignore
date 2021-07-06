@@ -3,3 +3,5 @@ philo
 *.o
 
 logs/
+
+.DS_Store
