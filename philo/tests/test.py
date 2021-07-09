@@ -31,7 +31,7 @@ def test_error_codes():
             ("./philo 3 4 5 6 a", -1),
             ("./philo \"\" 3 4 5 6", -1),
             ("./philo 7 \"\" 3 4 6", -1),
-
+            ("./philo 7 3 4 6 \"\"", -1),
             ]
 
     logger.info(f"{WHITE}Testing error codes{RESET}")
