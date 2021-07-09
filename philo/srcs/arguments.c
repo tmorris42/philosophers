@@ -5,6 +5,8 @@ int	parse_argument(char *arg)
 	int			i;
 	long int	value;
 
+	if (!arg || !arg[0])
+		return (-1);
 	value = 0;
 	i = 0;
 	while (arg && arg[i])
