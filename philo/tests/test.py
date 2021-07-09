@@ -67,6 +67,7 @@ def test_dying_philos():
             ("4 410 200 200", 0), #from correct?
             ("5 800 200 200", 0),
             ("5 800 200 200 7", 0), #also an everyone eats test
+            ("1 800 200 200", 1),
             ]
 
     logger.info(f"{WHITE}Testing death conditions{RESET}")
