@@ -64,6 +64,9 @@ void	*philo_start(void *ptr)
 		philo_eat(philo);
 		drop_forks(philo);
 		philo_sleep(philo);
+		pthread_mutex_lock(&(philo->lock));
+		ft_log(philo, "is thinking");
+		pthread_mutex_unlock(&(philo->lock));
 	}
 	return (ptr);
 }
