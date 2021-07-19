@@ -55,8 +55,6 @@ void	*philo_start(void *ptr)
 	t_philo		*philo;
 
 	philo = (t_philo *)ptr;
-	philo->start_time = ft_now();
-	philo->time_of_last_meal = philo->start_time;
 	while (philo && philo->alive && philo->data->playing)
 	{
 		if (try_to_take_forks(philo) < 0)
@@ -90,7 +88,7 @@ t_philo	*philo_create(int id, t_data *data)
 	philo->alive = 1;
 	philo->data = data;
 	philo->times_eaten = 0;
-	philo->start_time = ft_now();
+	philo->start_time = data->start_time;
 	philo->time_of_last_meal = philo->start_time;
 	return (philo);
 }
