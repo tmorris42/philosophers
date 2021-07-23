@@ -65,6 +65,16 @@ void	*philo_start(void *ptr)
 		pthread_mutex_lock(&(philo->lock));
 		ft_log(philo, "is thinking");
 		pthread_mutex_unlock(&(philo->lock));
+		if (philo->data->num_of_philos % 2)
+		{
+			if (philo->time_of_last_meal != philo->start_time)
+			{
+				ft_log(philo, "is stalling");
+//				while ((ft_now() - philo->time_of_last_meal) < (philo->data->time_to_die / (philo->data->num_of_philos)))
+				while ((ft_now() - philo->time_of_last_meal) < (philo->data->time_to_die - (philo->data->time_to_eat)))
+					usleep(1);
+			}
+		}
 	}
 	return (ptr);
 }

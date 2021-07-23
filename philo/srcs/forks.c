@@ -32,7 +32,7 @@ int	try_to_take_forks(t_philo *philo)
 	pthread_mutex_t	*first_fork;
 	pthread_mutex_t	*second_fork;
 
-	if (philo->id % 2)
+	if (philo->id % 2 && philo->id != philo->data->num_of_philos)
 	{
 		first_fork = philo->left_fork;
 		second_fork = philo->right_fork;
