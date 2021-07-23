@@ -72,6 +72,9 @@ def test_dying_philos():
             ("1 800 200 200", 1),
             ("3 610 200 200 5", 0),
             ("9 60000 100 100 9", 0),
+            ("5 120 60 60", 1),
+            ("7 120 60 60", 1),
+            ("4 310 200 100", 1),
             ]
 
     logger.info(f"{WHITE}Testing death conditions{RESET}")
