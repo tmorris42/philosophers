@@ -69,8 +69,8 @@ void	*philo_start(void *ptr)
 		{
 			if (philo->time_of_last_meal != philo->start_time)
 			{
-				while ((ft_now() - philo->time_of_last_meal) < (philo->data->time_to_die - (philo->data->time_to_eat)))
-					usleep(1);
+				if ((ft_now() - philo->time_of_last_meal) < (philo->data->time_to_die - (philo->data->time_to_eat)))
+					usleep(100);
 			}
 		}
 	}
