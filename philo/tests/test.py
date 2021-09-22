@@ -15,9 +15,15 @@ LOGFILE = datetime.datetime.now().strftime("./logs/%Y-%m-%d-%H-%M-%S.log")
 def test_error_codes():
     logger = logging.getLogger("philo_tester")
     cmds = [
-            ("./philo", -1),
             ("./philo 2 2 3 4", 0),
             ("./philo 2 2 3 4 5", 0),
+            ("./philo 0 2 3 4 5", 0),
+            ("./philo", -1),
+            ("./philo a", -1),
+            ("./philo    ", -1),
+            ("./philo 2 3 2 a ", -1),
+            ("./philo '1 2 3 4'", -1),
+            ("./philo 1 2 + 3", -1),
             ("./philo 2 2 3 test 5", -1),
             ("./philo 2 -5 2 9", -1),
             ("./philo 2 -5- 2 9", -1),
