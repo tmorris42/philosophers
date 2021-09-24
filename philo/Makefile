@@ -14,7 +14,11 @@ INCLUDES_DIR = includes
 HEADERS = $(INCLUDES_DIR)/philo.h
 SRCS = philo.c \
 	   arguments.c main.c data.c \
-	   utils.c forks.c manager.c
+	   utils.c forks.c manager.c \
+	   accessors/playing.c \
+	   accessors/philo_alive.c \
+	   accessors/philo_time_of_last_meal.c \
+	   accessors/philo_times_eaten.c
 OBJS := $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 all: $(NAME)

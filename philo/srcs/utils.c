@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:46 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/02 13:25:47 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/25 00:27:27 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	ft_log(t_philo *philo, char *msg)
 	long int		delta_time;
 
 	pthread_mutex_lock(&(philo->data->log_lock));
-	if (philo->data->playing && philo->alive)
+	if (get_playing(philo->data) && philo_get_alive(philo))
 	{
 		delta_time = ft_now() - philo->start_time;
 		printf("%.11ld", delta_time);

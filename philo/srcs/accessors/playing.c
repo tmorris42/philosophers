@@ -1,35 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   playing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/02 13:25:33 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/25 00:27:02 by tmorris          ###   ########.fr       */
+/*   Created: 2021/09/25 00:27:50 by tmorris           #+#    #+#             */
+/*   Updated: 2021/09/25 00:33:08 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	main(int argc, char **argv)
+int	get_playing(t_data *data)
 {
-	t_data	*data;
+	int	playing;
 
-	data = data_init();
-	if (!data)
-		return (-1);
-	if (get_settings(argc, argv, data) < 0)
-		return (usage(&data));
-	if (create_forks(data) < 0)
-		return (-1);
-	if (create_philos(data) < 0)
-		return (-1);
-	if (create_threads(data) < 0)
-		return (-1);
-	while (get_playing(data))
-		check_end_conditions(data);
-	rejoin_threads(data);
-	data_free(&data);
-	return (0);
+	pthread_mutex_lock(&data->playing_lock);
+	playing = data->playing;
+	pthread_mutex_unlock(&data->playing_lock);
+	return (playing);
+}
+
+void	set_playing(t_data *data, int value)
+{
+	pthread_mutex_lock(&data->playing_lock);
+	data->playing = value;
+	pthread_mutex_unlock(&data->playing_lock);
 }

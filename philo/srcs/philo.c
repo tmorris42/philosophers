@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/02 13:25:07 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/25 00:29:59 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,11 @@ void	philo_kill(t_data *data, t_philo *philo)
 {
 	long int		delta_time;
 
+	set_playing(data, 0);
+	delta_time = ft_now() - philo->start_time;
 	pthread_mutex_lock(&(data->log_lock));
-	if (philo->data->playing && philo->alive)
-	{
-		data->playing = 0;
-		philo->alive = 0;
-		delta_time = ft_now() - philo->start_time;
-		printf("%.11ld", delta_time);
-		printf(" %d died\n", philo->id + 1);
-	}
+	printf("%.11ld", delta_time);
+	printf(" %d died\n", philo->id + 1);
 	pthread_mutex_unlock(&(philo->data->log_lock));
 }
 
@@ -32,34 +28,26 @@ void	philo_eat(t_philo *philo)
 {
 	long int	stop_time;
 
-	pthread_mutex_lock(&(philo->lock));
-	if (philo->data->playing && philo->alive && !is_starving(philo))
+	if (get_playing(philo->data) && philo_get_alive(philo))
 	{
-		philo->time_of_last_meal = ft_now();
+		philo_set_time_of_last_meal(philo, ft_now());
 		ft_log(philo, "is eating");
-		pthread_mutex_unlock(&(philo->lock));
 		stop_time = ft_now() + philo->data->time_to_eat;
 		ft_usleep(stop_time);
-		philo->times_eaten += 1;
+		philo_add_times_eaten(philo, 1);
 	}
-	else
-		pthread_mutex_unlock(&(philo->lock));
 }
 
 void	philo_sleep(t_philo *philo)
 {
 	long int	stop_time;
 
-	pthread_mutex_lock(&(philo->lock));
-	if (philo->data->playing && philo->alive)
+	if (get_playing(philo->data) && philo_get_alive(philo))
 	{
 		ft_log(philo, "is sleeping");
-		pthread_mutex_unlock(&(philo->lock));
 		stop_time = ft_now() + philo->data->time_to_sleep;
 		ft_usleep(stop_time);
 	}
-	else
-		pthread_mutex_unlock(&(philo->lock));
 }
 
 void	*philo_start(void *ptr)
@@ -67,16 +55,22 @@ void	*philo_start(void *ptr)
 	t_philo		*philo;
 
 	philo = (t_philo *)ptr;
-	while (philo && philo->alive && philo->data->playing)
+	while (philo)
 	{
+		if (!philo_get_alive(philo))
+		{
+			if (get_playing(philo->data))
+				philo_kill(philo->data, philo);
+			break ;
+		}
+		if (!get_playing(philo->data))
+			break ;
 		if (try_to_take_forks(philo) < 0)
 			continue ;
 		philo_eat(philo);
 		drop_forks(philo);
 		philo_sleep(philo);
-		pthread_mutex_lock(&(philo->lock));
 		ft_log(philo, "is thinking");
-		pthread_mutex_unlock(&(philo->lock));
 		if (philo->time_of_last_meal != philo->start_time)
 			usleep(1);
 	}

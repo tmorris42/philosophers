@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:25 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/02 13:25:29 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/25 00:27:27 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,12 @@ int	drop_forks(t_philo *philo)
 int	take_fork(t_philo *philo, pthread_mutex_t *fork)
 {
 	pthread_mutex_lock(fork);
-	if (!(philo->alive))
+	if (!(philo_get_alive(philo)))
 	{
 		pthread_mutex_unlock(fork);
 		return (0);
 	}
-	pthread_mutex_lock(&(philo->lock));
 	ft_log(philo, "has taken a fork");
-	pthread_mutex_unlock(&(philo->lock));
 	return (1);
 }
 
@@ -54,14 +52,15 @@ int	try_to_take_forks(t_philo *philo)
 		first_fork = philo->right_fork;
 		second_fork = philo->left_fork;
 	}
-	take_fork(philo, first_fork);
+	if (!take_fork(philo, first_fork))
+		return (-1);
 	if (philo->left_fork == philo->right_fork)
-		while (philo->alive)
+		while (philo_get_alive(philo))
 			usleep(1);
-	else if (philo->alive)
+	else if (philo_get_alive(philo))
 	{
-		take_fork(philo, second_fork);
-		return (0);
+		if (take_fork(philo, second_fork))
+			return (0);
 	}
 	drop_fork(first_fork);
 	return (-1);

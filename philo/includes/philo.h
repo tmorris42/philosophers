@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:26:40 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/02 13:26:42 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/25 00:36:03 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ typedef struct s_philo
 typedef struct s_data
 {
 	pthread_mutex_t	log_lock;
+	pthread_mutex_t	playing_lock;
 	pthread_mutex_t	*forks;
 	t_philo			**philos;
 	int				playing;
@@ -69,4 +70,13 @@ int			check_end_conditions(t_data *data);
 void		rejoin_threads(t_data *data);
 int			create_threads(t_data *data);
 int			create_philos(t_data *data);
+int			get_playing(t_data *data);
+int			philo_get_alive(t_philo *philo);
+void		set_playing(t_data *data, int value);
+void		philo_set_time_of_last_meal(t_philo *philo, long int time);
+long int	philo_get_time_since_meal(t_philo *philo);
+void		philo_add_times_eaten(t_philo *philo, int times);
+int			philo_get_times_eaten(t_philo *philo);
+int			philo_get_alive(t_philo *philo);
+void		philo_set_alive(t_philo *philo, int alive);
 #endif
