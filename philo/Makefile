@@ -1,6 +1,8 @@
 UNAME_S := ${shell uname}
 
 FLAGS := -Wall -Wextra -Werror
+DEBUG_FLAGS := $(FLAGS) -g3 -fsanitize=thread
+FLAGS = $(DEBUG_FLAGS)
 
 OBJ_DIR := objs
 SRC_DIR	:= srcs
@@ -16,6 +18,13 @@ SRCS = philo.c \
 OBJS := $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 all: $(NAME)
+ifeq ($(FLAGS), $(DEBUG_FLAGS))
+	@echo " "
+	@echo "===================================="
+	@echo "| WARNING! Debug mode is activated |"
+	@echo "===================================="
+	@echo " "
+endif
 
 $(OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(HEADERS) $(MAKEFILE)
 	@mkdir -p $(dir $@)
