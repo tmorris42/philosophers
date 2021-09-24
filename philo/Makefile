@@ -2,20 +2,28 @@ UNAME_S := ${shell uname}
 
 FLAGS := -Wall -Wextra -Werror
 
+OBJ_DIR := objs
+SRC_DIR	:= srcs
+
 NAME = philo
-HEADERS = srcs/philo.h
-SRCS = srcs/philo.c srcs/arguments.c srcs/main.c srcs/data.c \
-	   srcs/utils.c srcs/forks.c srcs/manager.c
-OBJS = ${SRCS:.c=.o}
+MAKEFILE = Makefile
+
+INCLUDES_DIR = includes
+HEADERS = $(INCLUDES_DIR)/philo.h
+SRCS = philo.c \
+	   arguments.c main.c data.c \
+	   utils.c forks.c manager.c
+OBJS := $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 all: $(NAME)
 
-$(OBJS): %.o : %.c $(HEADERS)
+$(OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(HEADERS) $(MAKEFILE)
+	@mkdir -p $(dir $@)
 ifeq ($(UNAME_S),Linux)
-	gcc -c $(FLAGS) $< -o $@ -lpthread
+	gcc -c $(FLAGS) -I$(INCLUDES_DIR) $< -o $@ -lpthread
 endif
 ifeq ($(UNAME_S),Darwin)
-	gcc -c $(FLAGS) $< -o $@
+	gcc -c $(FLAGS) -I$(INCLUDES_DIR)  $< -o $@
 endif
 
 $(NAME): $(OBJS)

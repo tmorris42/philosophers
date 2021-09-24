@@ -1,5 +1,5 @@
 .*.swp
-philo
+philo/philo
 *.o
 
 logs/
