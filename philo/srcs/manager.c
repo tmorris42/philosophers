@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 11:30:58 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 11:54:08 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,11 @@ int	is_starving(t_philo *philo)
 {
 	long int	time_since_meal;
 
-	time_since_meal = philo_get_time_since_meal(philo);
+	pthread_mutex_lock(&philo->lock);
+	time_since_meal = (ft_now() - philo->time_of_last_meal);
+	if (time_since_meal > (long int)philo->data->time_to_die)
+		philo->alive = 0;
+	pthread_mutex_unlock(&philo->lock);
 	return (time_since_meal > (long int)philo->data->time_to_die);
 }
 
@@ -85,16 +89,18 @@ int	check_end_conditions(t_data *data)
 	while (i < data->num_of_philos)
 	{
 		if (is_starving(data->philos[i]))
+		{
 			philo_set_alive(data->philos[i], 0);
+			set_playing(data, 0);
+			break ;
+		}
 		if (data->number_eats > -1)
 			if (philo_get_times_eaten(data->philos[i]) >= data->number_eats)
 				done += 1;
 		++i;
 	}
 	if (done == data->num_of_philos)
-	{
 		set_playing(data, 0);
-	}
 	usleep(SLEEP_INT);
 	return (0);
 }

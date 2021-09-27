@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 10:58:38 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 11:49:28 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@ void	philo_kill(t_data *data, t_philo *philo)
 {
 	long int		delta_time;
 
-	if (!set_playing(data, 0))
-		return ;
 	delta_time = ft_now() - philo->start_time;
 	pthread_mutex_lock(&(data->log_lock));
 	printf("%.11ld", delta_time);

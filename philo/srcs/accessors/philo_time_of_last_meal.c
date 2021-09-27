@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 00:30:02 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/25 00:32:46 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 11:49:17 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 void	philo_set_time_of_last_meal(t_philo *philo, long int time)
 {
 	pthread_mutex_lock(&philo->lock);
-	philo->time_of_last_meal = time;
+	if (philo->alive)
+		philo->time_of_last_meal = time;
 	pthread_mutex_unlock(&philo->lock);
 }
 
