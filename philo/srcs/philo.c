@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/25 00:29:59 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 10:58:38 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@ void	philo_kill(t_data *data, t_philo *philo)
 {
 	long int		delta_time;
 
-	set_playing(data, 0);
+	if (!set_playing(data, 0))
+		return ;
 	delta_time = ft_now() - philo->start_time;
 	pthread_mutex_lock(&(data->log_lock));
 	printf("%.11ld", delta_time);
@@ -59,8 +60,7 @@ void	*philo_start(void *ptr)
 	{
 		if (!philo_get_alive(philo))
 		{
-			if (get_playing(philo->data))
-				philo_kill(philo->data, philo);
+			philo_kill(philo->data, philo);
 			break ;
 		}
 		if (!get_playing(philo->data))
@@ -72,7 +72,7 @@ void	*philo_start(void *ptr)
 		philo_sleep(philo);
 		ft_log(philo, "is thinking");
 		if (philo->time_of_last_meal != philo->start_time)
-			usleep(1);
+			usleep(10);
 	}
 	return (ptr);
 }

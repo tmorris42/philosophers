@@ -62,7 +62,7 @@ def test_error_codes():
                 logger.info(f"{to_print}{GREEN}PASSED{RESET} (Returned Error Code)")
                 passed += 1
             else:
-                logger.info(f"{RED}FAILED{RESET} (Returned Error Code)")
+                logger.info(f"{to_print}{RED}FAILED{RESET} (Returned Error Code)")
     return (passed, total)
 
 def test_dying_philos():

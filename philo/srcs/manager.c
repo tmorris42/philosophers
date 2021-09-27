@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/25 00:32:30 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 11:30:58 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 int	create_threads(t_data *data)
 {
 	int		i;
-	int		*ptr;
 	t_philo	*philo;
 
 	i = 0;
@@ -24,19 +23,18 @@ int	create_threads(t_data *data)
 		philo = data->philos[i];
 		if (pthread_create(&((philo)->tid), NULL, philo_start, philo))
 		{
-			pthread_mutex_lock(&data->playing_lock);
-			data->playing = 0;
-			pthread_mutex_unlock(&data->playing_lock);
-			--i;
-			while (i >= 0)
+			set_playing(data, 0);
+			while (i > 0)
 			{
-				pthread_join(philo->tid, (void **)&ptr);
+				pthread_join(philo->tid, NULL);
 				--i;
 			}
 			data_free(&data);
 			return (-1);
 		}
-		++i;
+		i += 2;
+		if (i >= data->num_of_philos && i % 2 == 0)
+			i = 1;
 	}
 	return (0);
 }

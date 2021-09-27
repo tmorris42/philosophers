@@ -2,7 +2,9 @@ UNAME_S := ${shell uname}
 
 FLAGS := -Wall -Wextra -Werror
 DEBUG_FLAGS := $(FLAGS) -g3 -fsanitize=thread
+ifeq ($(DEBUG), yes)
 FLAGS = $(DEBUG_FLAGS)
+endif
 
 OBJ_DIR := objs
 SRC_DIR	:= srcs
