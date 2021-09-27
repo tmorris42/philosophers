@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 11:54:08 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 12:26:16 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,12 +70,22 @@ int	create_philos(t_data *data)
 int	is_starving(t_philo *philo)
 {
 	long int	time_since_meal;
+	long int	delta_time;
 
 	pthread_mutex_lock(&philo->lock);
 	time_since_meal = (ft_now() - philo->time_of_last_meal);
 	if (time_since_meal > (long int)philo->data->time_to_die)
 		philo->alive = 0;
 	pthread_mutex_unlock(&philo->lock);
+	if (time_since_meal > (long int)philo->data->time_to_die)
+	{
+		delta_time = ft_now() - philo->start_time;
+		pthread_mutex_lock(&(philo->data->log_lock));
+		printf("%.11ld", delta_time);
+		printf(" %d died\n", philo->id + 1);
+		set_playing(philo->data, 0);
+		pthread_mutex_unlock(&(philo->data->log_lock));
+	}
 	return (time_since_meal > (long int)philo->data->time_to_die);
 }
 
@@ -90,8 +100,6 @@ int	check_end_conditions(t_data *data)
 	{
 		if (is_starving(data->philos[i]))
 		{
-			philo_set_alive(data->philos[i], 0);
-			set_playing(data, 0);
 			break ;
 		}
 		if (data->number_eats > -1)

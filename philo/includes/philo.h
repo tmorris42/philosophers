@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:26:40 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 10:40:24 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 12:21:25 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ void		ft_usleep(long int finish);
 void		ft_log(t_philo *philo, char *msg);
 int			try_to_take_forks(t_philo *philo);
 void		*philo_start(void *ptr);
-void		philo_kill(t_data *data, t_philo *philo);
 long int	ft_now(void);
 int			drop_forks(t_philo *philo);
 t_philo		*philo_create(int id, t_data *data);

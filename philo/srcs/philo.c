@@ -6,22 +6,11 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 11:49:28 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 12:21:18 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	philo_kill(t_data *data, t_philo *philo)
-{
-	long int		delta_time;
-
-	delta_time = ft_now() - philo->start_time;
-	pthread_mutex_lock(&(data->log_lock));
-	printf("%.11ld", delta_time);
-	printf(" %d died\n", philo->id + 1);
-	pthread_mutex_unlock(&(philo->data->log_lock));
-}
 
 void	philo_eat(t_philo *philo)
 {
@@ -57,10 +46,7 @@ void	*philo_start(void *ptr)
 	while (philo)
 	{
 		if (!philo_get_alive(philo))
-		{
-			philo_kill(philo->data, philo);
 			break ;
-		}
 		if (!get_playing(philo->data))
 			break ;
 		if (try_to_take_forks(philo) < 0)
