@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:25 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 11:20:15 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 12:53:22 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ int	create_forks(t_data *data)
 		data_free(&data);
 		return (-1);
 	}
+	memset(data->forks, 0, size);
 	i = 0;
 	while (i < data->num_of_philos)
 	{

@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:19 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 12:45:26 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 12:54:45 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	data_free(t_data **data_ptr)
 	t_data	*data;
 	int		i;
 
+	if (!data_ptr || ! (*data_ptr))
+		return ;
 	data = (*data_ptr);
 	pthread_mutex_destroy(&data->log_lock);
 	pthread_mutex_destroy(&data->playing_lock);
@@ -28,7 +30,8 @@ void	data_free(t_data **data_ptr)
 			pthread_mutex_destroy(&data->philos[i]->lock);
 			free(data->philos[i]);
 			data->philos[i] = NULL;
-			pthread_mutex_destroy(&data->forks[i]);
+			if (data->forks)
+				pthread_mutex_destroy(&data->forks[i]);
 			++i;
 		}
 	}
