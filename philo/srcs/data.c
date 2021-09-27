@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:19 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 11:37:37 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 12:45:26 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ void	data_free(t_data **data_ptr)
 
 	data = (*data_ptr);
 	pthread_mutex_destroy(&data->log_lock);
+	pthread_mutex_destroy(&data->playing_lock);
 	if (data->philos && data->num_of_philos)
 	{
 		i = 0;
