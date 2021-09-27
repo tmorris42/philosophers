@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 12:26:16 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 12:58:15 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,9 +99,7 @@ int	check_end_conditions(t_data *data)
 	while (i < data->num_of_philos)
 	{
 		if (is_starving(data->philos[i]))
-		{
 			break ;
-		}
 		if (data->number_eats > -1)
 			if (philo_get_times_eaten(data->philos[i]) >= data->number_eats)
 				done += 1;
