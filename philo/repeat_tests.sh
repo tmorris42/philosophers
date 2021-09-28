@@ -1,4 +1,4 @@
-for VAR in 1 2 3 .. 10 11 .. 100
+for VAR in 1 2 3 .. 5
 do
-    make test
+    python3.7 tests/test.py > /dev/null;
 done
