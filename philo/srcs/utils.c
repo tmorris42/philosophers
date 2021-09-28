@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:46 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/25 00:27:27 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/28 11:59:36 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,12 @@ long int	ft_now(void)
 	return (timeval_to_long_int(time));
 }
 
-void	ft_usleep(long int finish)
+void	ft_usleep(t_philo *philo, long int delay)
 {
-	while (ft_now() < finish)
+	long int	finish;
+
+	finish = ft_now() + delay;
+	while (get_playing(philo->data) && ft_now() < finish)
 	{
 		usleep(SLEEP_INT);
 	}

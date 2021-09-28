@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 13:15:33 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/28 13:30:43 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,27 +14,21 @@
 
 void	philo_eat(t_philo *philo)
 {
-	long int	stop_time;
-
 	if (get_playing(philo->data) && philo_get_alive(philo))
 	{
 		philo_set_time_of_last_meal(philo, ft_now());
 		ft_log(philo, "is eating");
-		stop_time = ft_now() + philo->data->time_to_eat;
-		ft_usleep(stop_time);
+		ft_usleep(philo, philo->data->time_to_eat);
 		philo_add_times_eaten(philo, 1);
 	}
 }
 
 void	philo_sleep(t_philo *philo)
 {
-	long int	stop_time;
-
 	if (get_playing(philo->data) && philo_get_alive(philo))
 	{
 		ft_log(philo, "is sleeping");
-		stop_time = ft_now() + philo->data->time_to_sleep;
-		ft_usleep(stop_time);
+		ft_usleep(philo, philo->data->time_to_sleep);
 	}
 }
 
@@ -55,8 +49,9 @@ void	*philo_start(void *ptr)
 		drop_forks(philo);
 		philo_sleep(philo);
 		ft_log(philo, "is thinking");
-		if (philo->time_of_last_meal != philo->start_time)
-			usleep(SLEEP_INT);
+		// if (philo->time_of_last_meal != philo->start_time)
+		// if (philo->data->num_of_philos % 2)
+		ft_usleep(philo, SLEEP_INT);
 	}
 	return (ptr);
 }

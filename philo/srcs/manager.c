@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 12:58:15 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/28 13:18:57 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,10 @@ int	create_threads(t_data *data)
 		}
 		i += 2;
 		if (i >= data->num_of_philos && i % 2 == 0)
+		{
 			i = 1;
+			usleep(SLEEP_INT);
+		}
 	}
 	return (0);
 }

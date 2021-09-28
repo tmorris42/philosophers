@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:25 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 12:53:22 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/27 14:08:22 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	try_to_take_forks(t_philo *philo)
 	pthread_mutex_t	*first_fork;
 	pthread_mutex_t	*second_fork;
 
-	if (philo->id % 2)
+	if (philo->id == philo->data->num_of_philos - 1)
 	{
 		first_fork = philo->left_fork;
 		second_fork = philo->right_fork;
