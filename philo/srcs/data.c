@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:19 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 12:54:45 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 14:07:13 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ t_data	*data_init(void)
 	data->playing = 1;
 	data->philos = NULL;
 	data->forks = NULL;
-	data->start_time = ft_now();
+	data->start_time = 0;
 	if (pthread_mutex_init(&data->log_lock, NULL))
 	{
 		data_free(&data);

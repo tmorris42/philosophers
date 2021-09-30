@@ -6,45 +6,22 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 12:00:59 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 14:43:50 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	create_threads_odd(t_data *data)
+void	rejoin_threads(t_philo *philos[], int i)
 {
-	int		i;
-	t_philo	*philo;
-
-	i = 0;
-	data->start_time = ft_now();
-	while (i < data->num_of_philos)
+	while (i >= 0)
 	{
-		philo = data->philos[i];
-		philo->start_time = data->start_time;
-		if (pthread_create(&((philo)->tid), NULL, philo_start, philo))
-		{
-			set_playing(data, 0);
-			while (i > 0)
-			{
-				pthread_join(philo->tid, NULL);
-				--i;
-			}
-			data_free(&data);
-			return (-1);
-		}
-		i += 3;
-		if (i >= data->num_of_philos && i % 3 != 2)
-		{
-			i = (i % 3) + 1;
-			ft_usleep(philo, data->time_to_eat);
-		}
+		pthread_join(philos[i]->tid, NULL);
+		--i;
 	}
-	return (0);
 }
 
-int	create_threads_even(t_data *data)
+int	create_threads(t_data *data, int magic)
 {
 	int		i;
 	t_philo	*philo;
@@ -54,23 +31,19 @@ int	create_threads_even(t_data *data)
 	while (i < data->num_of_philos)
 	{
 		philo = data->philos[i];
-		philo->start_time = data->start_time;
+		philo->time_of_last_meal = data->start_time;
 		if (pthread_create(&((philo)->tid), NULL, philo_start, philo))
 		{
 			set_playing(data, 0);
-			while (i > 0)
-			{
-				pthread_join(philo->tid, NULL);
-				--i;
-			}
+			rejoin_threads(data->philos, i);
 			data_free(&data);
 			return (-1);
 		}
-		i += 2;
-		if (i >= data->num_of_philos && i % 2 != 1)
+		i += magic;
+		if (i >= data->num_of_philos && i % magic != (magic - 1))
 		{
-			i = (i % 2) + 1;
-			ft_usleep(philo, data->time_to_eat / 2);
+			i = (i % magic) + 1;
+			ft_usleep(philo, magic * data->time_to_eat / 4);
 		}
 	}
 	return (0);
@@ -90,7 +63,6 @@ int	create_philos(t_data *data)
 	}
 	memset(data->philos, 0, data->num_of_philos * sizeof(*(data->philos)));
 	i = 0;
-	data->start_time = ft_now();
 	while (i < data->num_of_philos)
 	{
 		data->philos[i] = philo_create(i, data);
@@ -116,7 +88,7 @@ int	is_starving(t_philo *philo)
 	pthread_mutex_unlock(&philo->lock);
 	if (time_since_meal > (long int)philo->data->time_to_die)
 	{
-		delta_time = ft_now() - philo->start_time;
+		delta_time = ft_now() - philo->data->start_time;
 		pthread_mutex_lock(&(philo->data->log_lock));
 		printf("%.11ld", delta_time);
 		printf(" %d died\n", philo->id + 1);
@@ -146,17 +118,4 @@ int	check_end_conditions(t_data *data)
 		set_playing(data, 0);
 	usleep(SLEEP_INT);
 	return (0);
-}
-
-void	rejoin_threads(t_data *data)
-{
-	int	i;
-	int	*ptr;
-
-	i = 0;
-	while (i < data->num_of_philos)
-	{
-		pthread_join(data->philos[i]->tid, (void **)&ptr);
-		++i;
-	}
 }
