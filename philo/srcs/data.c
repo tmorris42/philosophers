@@ -6,39 +6,39 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:19 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 14:07:13 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 17:46:09 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	data_free(t_data **data_ptr)
+int	data_free(t_data *data)
 {
-	t_data	*data;
 	int		i;
 
-	if (!data_ptr || ! (*data_ptr))
-		return ;
-	data = (*data_ptr);
-	pthread_mutex_destroy(&data->log_lock);
-	pthread_mutex_destroy(&data->playing_lock);
-	if (data->philos && data->num_of_philos)
+	if (!data)
+		return (0);
+	if (data->locks_ready)
+		pthread_mutex_destroy(&data->log_lock);
+	if (data->locks_ready > 1)
+		pthread_mutex_destroy(&data->playing_lock);
+	i = 0;
+	while (data && i < data->num_of_philos)
 	{
-		i = 0;
-		while (i < data->num_of_philos)
+		if (data->philos && data->philos[i])
 		{
 			pthread_mutex_destroy(&data->philos[i]->lock);
 			free(data->philos[i]);
 			data->philos[i] = NULL;
-			if (data->forks)
-				pthread_mutex_destroy(&data->forks[i]);
-			++i;
 		}
+		if (data->forks && data->locks_ready > i + 2)
+			pthread_mutex_destroy(&data->forks[i]);
+		++i;
 	}
 	free(data->philos);
 	free(data->forks);
 	free(data);
-	(*data_ptr) = NULL;
+	return (0);
 }
 
 t_data	*data_init(void)
@@ -52,15 +52,18 @@ t_data	*data_init(void)
 	data->philos = NULL;
 	data->forks = NULL;
 	data->start_time = 0;
+	data->locks_ready = 0;
 	if (pthread_mutex_init(&data->log_lock, NULL))
 	{
-		data_free(&data);
+		data_free(data);
 		return (NULL);
 	}
+	++data->locks_ready;
 	if (pthread_mutex_init(&data->playing_lock, NULL))
 	{
-		data_free(&data);
+		data_free(data);
 		return (NULL);
 	}
+	++data->locks_ready;
 	return (data);
 }

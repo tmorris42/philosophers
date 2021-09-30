@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 14:43:50 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 18:21:53 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	rejoin_threads(t_philo *philos[], int i)
 	}
 }
 
-int	create_threads(t_data *data, int magic)
+int	create_threads(t_data *data, int inc)
 {
 	int		i;
 	t_philo	*philo;
@@ -36,14 +36,13 @@ int	create_threads(t_data *data, int magic)
 		{
 			set_playing(data, 0);
 			rejoin_threads(data->philos, i);
-			data_free(&data);
 			return (-1);
 		}
-		i += magic;
-		if (i >= data->num_of_philos && i % magic != (magic - 1))
+		i += inc;
+		if (i >= data->num_of_philos && i % inc != (inc - 1))
 		{
-			i = (i % magic) + 1;
-			ft_usleep(philo, magic * data->time_to_eat / 4);
+			i = (i % inc) + 1;
+			ft_usleep(philo, inc * data->time_to_eat / 4);
 		}
 	}
 	return (0);
@@ -57,20 +56,14 @@ int	create_philos(t_data *data)
 	size = sizeof(*data->philos) * data->num_of_philos;
 	data->philos = (t_philo **)malloc(size);
 	if (!data->philos)
-	{
-		data_free(&data);
 		return (-1);
-	}
 	memset(data->philos, 0, data->num_of_philos * sizeof(*(data->philos)));
 	i = 0;
 	while (i < data->num_of_philos)
 	{
 		data->philos[i] = philo_create(i, data);
 		if (!(data->philos[i]))
-		{
-			data_free(&data);
 			return (-1);
-		}
 		++i;
 	}
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:26:40 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 14:44:10 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 17:48:08 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,12 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				number_eats;
+	int				locks_ready;
 }	t_data;
 
 int			get_settings(int argc, char **argv, t_data *data);
-int			usage(t_data **data);
-void		data_free(t_data **data_ptr);
+int			usage(t_data *data);
+int			data_free(t_data *data_ptr);
 int			is_starving(t_philo *philo);
 void		philo_eat(t_philo *philo);
 void		ft_usleep(t_philo *philo, long int delay);

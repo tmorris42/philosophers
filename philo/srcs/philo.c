@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 14:06:22 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 18:44:44 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,18 @@
 
 void	philo_eat(t_philo *philo)
 {
-	if (get_playing(philo->data) && philo_get_alive(philo))
+	if (philo_set_time_of_last_meal(philo, ft_now()))
 	{
-		if (philo_set_time_of_last_meal(philo, ft_now()))
-		{
-			ft_log(philo, "is eating");
-			ft_usleep(philo, philo->data->time_to_eat);
-			philo_add_times_eaten(philo, 1);
-		}
+		ft_log(philo, "is eating");
+		ft_usleep(philo, philo->data->time_to_eat);
+		philo_add_times_eaten(philo, 1);
 	}
 }
 
 void	philo_sleep(t_philo *philo)
 {
-	if (get_playing(philo->data))
-	{
-		ft_log(philo, "is sleeping");
-		ft_usleep(philo, philo->data->time_to_sleep);
-	}
+	ft_log(philo, "is sleeping");
+	ft_usleep(philo, philo->data->time_to_sleep);
 }
 
 void	*philo_start(void *ptr)
@@ -41,8 +35,6 @@ void	*philo_start(void *ptr)
 	philo = (t_philo *)ptr;
 	while (philo)
 	{
-		if (!philo_get_alive(philo))
-			break ;
 		if (!get_playing(philo->data))
 			break ;
 		if (try_to_take_forks(philo) < 0)
@@ -54,6 +46,8 @@ void	*philo_start(void *ptr)
 		if (philo->data->num_of_philos % 2)
 			ft_usleep(philo, 2 * philo->data->time_to_eat
 				- philo->data->time_to_sleep);
+		else
+			ft_usleep(philo, SLEEP_INT);
 	}
 	return (ptr);
 }
@@ -67,21 +61,22 @@ t_philo	*philo_create(int id, t_data *data)
 	philo = (t_philo *)malloc(sizeof(*philo));
 	if (!philo)
 		return (NULL);
-	philo->id = id;
-	pthread_mutex_init(&(philo->lock), NULL);
+	if (pthread_mutex_init(&(philo->lock), NULL))
+	{
+		free(philo);
+		return (NULL);
+	}
 	if (id)
-	{
 		philo->left_fork = &data->forks[id - 1];
-		philo->right_fork = &data->forks[id];
-	}
 	else
-	{
 		philo->left_fork = &data->forks[id];
+	if (id)
+		philo->right_fork = &data->forks[id];
+	else
 		philo->right_fork = &data->forks[data->num_of_philos - 1];
-	}
+	philo->id = id;
 	philo->alive = 1;
 	philo->data = data;
 	philo->times_eaten = 0;
-	philo->time_of_last_meal = philo->data->start_time;
 	return (philo);
 }

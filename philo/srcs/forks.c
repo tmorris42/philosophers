@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:25 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 11:39:01 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 17:34:48 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,19 +61,14 @@ int	create_forks(t_data *data)
 	size = sizeof(*data->forks) * data->num_of_philos;
 	data->forks = (pthread_mutex_t *)malloc(size);
 	if (!data->forks)
-	{
-		data_free(&data);
 		return (-1);
-	}
 	memset(data->forks, 0, size);
 	i = 0;
 	while (i < data->num_of_philos)
 	{
 		if (pthread_mutex_init(&(data->forks[i]), NULL))
-		{
-			data_free(&data);
 			return (-1);
-		}
+		++data->locks_ready;
 		++i;
 	}
 	return (0);
