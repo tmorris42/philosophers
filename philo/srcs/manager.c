@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 10:53:49 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 12:00:59 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,9 @@ int	create_threads_even(t_data *data)
 			return (-1);
 		}
 		i += 2;
-		if (i >= data->num_of_philos && i % 2 == 0)
+		if (i >= data->num_of_philos && i % 2 != 1)
 		{
-			i = 1;
+			i = (i % 2) + 1;
 			ft_usleep(philo, data->time_to_eat / 2);
 		}
 	}

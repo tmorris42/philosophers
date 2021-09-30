@@ -6,18 +6,23 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 00:30:02 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 11:49:17 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 11:42:57 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	philo_set_time_of_last_meal(t_philo *philo, long int time)
+int	philo_set_time_of_last_meal(t_philo *philo, long int time)
 {
+	int	ate;
+
+	ate = 0;
 	pthread_mutex_lock(&philo->lock);
+	ate = philo->alive;
 	if (philo->alive)
 		philo->time_of_last_meal = time;
 	pthread_mutex_unlock(&philo->lock);
+	return (ate);
 }
 
 long int	philo_get_time_since_meal(t_philo *philo)

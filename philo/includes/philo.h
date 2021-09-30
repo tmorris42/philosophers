@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:26:40 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 10:51:24 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 11:43:18 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <unistd.h>
 # include <pthread.h>
 # ifndef SLEEP_INT
-#  define SLEEP_INT 5
+#  define SLEEP_INT 1
 # endif
 
 typedef struct s_philo
@@ -73,7 +73,7 @@ int			create_philos(t_data *data);
 int			get_playing(t_data *data);
 int			philo_get_alive(t_philo *philo);
 int			set_playing(t_data *data, int value);
-void		philo_set_time_of_last_meal(t_philo *philo, long int time);
+int			philo_set_time_of_last_meal(t_philo *philo, long int time);
 long int	philo_get_time_since_meal(t_philo *philo);
 void		philo_add_times_eaten(t_philo *philo, int times);
 int			philo_get_times_eaten(t_philo *philo);

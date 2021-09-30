@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:25 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/27 14:08:22 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 11:39:01 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,30 +39,17 @@ int	take_fork(t_philo *philo, pthread_mutex_t *fork)
 
 int	try_to_take_forks(t_philo *philo)
 {
-	pthread_mutex_t	*first_fork;
-	pthread_mutex_t	*second_fork;
-
-	if (philo->id == philo->data->num_of_philos - 1)
-	{
-		first_fork = philo->left_fork;
-		second_fork = philo->right_fork;
-	}
-	else
-	{
-		first_fork = philo->right_fork;
-		second_fork = philo->left_fork;
-	}
-	if (!take_fork(philo, first_fork))
+	if (!take_fork(philo, philo->left_fork))
 		return (-1);
 	if (philo->left_fork == philo->right_fork)
 		while (philo_get_alive(philo))
 			usleep(1);
 	else if (philo_get_alive(philo))
 	{
-		if (take_fork(philo, second_fork))
+		if (take_fork(philo, philo->right_fork))
 			return (0);
 	}
-	drop_fork(first_fork);
+	drop_fork(philo->left_fork);
 	return (-1);
 }
 

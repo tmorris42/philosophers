@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 11:12:53 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 11:53:14 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,18 @@ void	philo_eat(t_philo *philo)
 {
 	if (get_playing(philo->data) && philo_get_alive(philo))
 	{
-		philo_set_time_of_last_meal(philo, ft_now());
-		ft_log(philo, "is eating");
-		ft_usleep(philo, philo->data->time_to_eat);
-		philo_add_times_eaten(philo, 1);
+		if (philo_set_time_of_last_meal(philo, ft_now()))
+		{
+			ft_log(philo, "is eating");
+			ft_usleep(philo, philo->data->time_to_eat);
+			philo_add_times_eaten(philo, 1);
+		}
 	}
 }
 
 void	philo_sleep(t_philo *philo)
 {
-	if (get_playing(philo->data) && philo_get_alive(philo))
+	if (get_playing(philo->data))
 	{
 		ft_log(philo, "is sleeping");
 		ft_usleep(philo, philo->data->time_to_sleep);
@@ -66,11 +68,16 @@ t_philo	*philo_create(int id, t_data *data)
 		return (NULL);
 	philo->id = id;
 	pthread_mutex_init(&(philo->lock), NULL);
-	philo->left_fork = &data->forks[id];
 	if (id)
-		philo->right_fork = &data->forks[id - 1];
+	{
+		philo->left_fork = &data->forks[id - 1];
+		philo->right_fork = &data->forks[id];
+	}
 	else
+	{
+		philo->left_fork = &data->forks[id];
 		philo->right_fork = &data->forks[data->num_of_philos - 1];
+	}
 	philo->alive = 1;
 	philo->data = data;
 	philo->times_eaten = 0;
