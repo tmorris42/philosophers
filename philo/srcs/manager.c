@@ -6,21 +6,55 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/28 13:18:57 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 10:53:49 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	create_threads(t_data *data)
+int	create_threads_odd(t_data *data)
 {
 	int		i;
 	t_philo	*philo;
 
 	i = 0;
+	data->start_time = ft_now();
 	while (i < data->num_of_philos)
 	{
 		philo = data->philos[i];
+		philo->start_time = data->start_time;
+		if (pthread_create(&((philo)->tid), NULL, philo_start, philo))
+		{
+			set_playing(data, 0);
+			while (i > 0)
+			{
+				pthread_join(philo->tid, NULL);
+				--i;
+			}
+			data_free(&data);
+			return (-1);
+		}
+		i += 3;
+		if (i >= data->num_of_philos && i % 3 != 2)
+		{
+			i = (i % 3) + 1;
+			ft_usleep(philo, data->time_to_eat);
+		}
+	}
+	return (0);
+}
+
+int	create_threads_even(t_data *data)
+{
+	int		i;
+	t_philo	*philo;
+
+	i = 0;
+	data->start_time = ft_now();
+	while (i < data->num_of_philos)
+	{
+		philo = data->philos[i];
+		philo->start_time = data->start_time;
 		if (pthread_create(&((philo)->tid), NULL, philo_start, philo))
 		{
 			set_playing(data, 0);
@@ -36,7 +70,7 @@ int	create_threads(t_data *data)
 		if (i >= data->num_of_philos && i % 2 == 0)
 		{
 			i = 1;
-			usleep(SLEEP_INT);
+			ft_usleep(philo, data->time_to_eat / 2);
 		}
 	}
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:26:40 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/28 12:34:17 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 10:51:24 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int			usage(t_data **data);
 void		data_free(t_data **data_ptr);
 int			is_starving(t_philo *philo);
 void		philo_eat(t_philo *philo);
-void		ft_usleep(t_philo *philo, long int finish);
+void		ft_usleep(t_philo *philo, long int delay);
 void		ft_log(t_philo *philo, char *msg);
 int			try_to_take_forks(t_philo *philo);
 void		*philo_start(void *ptr);
@@ -67,7 +67,8 @@ t_data		*data_init(void);
 int			create_forks(t_data *data);
 int			check_end_conditions(t_data *data);
 void		rejoin_threads(t_data *data);
-int			create_threads(t_data *data);
+int			create_threads_even(t_data *data);
+int			create_threads_odd(t_data *data);
 int			create_philos(t_data *data);
 int			get_playing(t_data *data);
 int			philo_get_alive(t_philo *philo);
