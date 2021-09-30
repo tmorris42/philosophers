@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:13 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/02 13:25:15 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/09/30 17:47:57 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int	get_settings(int argc, char **argv, t_data *data)
 	return (0);
 }
 
-int	usage(t_data **data)
+int	usage(t_data *data)
 {
 	int	i;
 

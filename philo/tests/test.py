@@ -62,25 +62,31 @@ def test_error_codes():
                 logger.info(f"{to_print}{GREEN}PASSED{RESET} (Returned Error Code)")
                 passed += 1
             else:
-                logger.info(f"{RED}FAILED{RESET} (Returned Error Code)")
+                logger.info(f"{to_print}{RED}FAILED{RESET} (Returned Error Code)")
     return (passed, total)
 
 def test_dying_philos():
     logger = logging.getLogger("philo_tester")
     base = "./philo "
     cmds = [
+            ("1 800 200 200", 1),
             ("2 1 200 10", 1),
-            ("4 310 200 100", 1), #from correction
             ("2 1000 2 2", 0),
+            ("3 610 50 200 5", 0),
+            ("3 610 200 50 5", 0),
+            ("3 610 200 200 5", 0),
+            ("3 610 200 300 5", 0),
+            ("4 310 200 100", 1), #from correction
             ("4 410 200 200", 0), #from correct?
+            ("5 120 60 60", 1),
+            ("5 410 50 200", 0),
+            ("5 610 200 50", 0),
             ("5 800 200 200", 0),
             ("5 800 200 200 7", 0), #also an everyone eats test
-            ("1 800 200 200", 1),
-            ("3 610 200 200 5", 0),
-            ("9 60000 100 100 9", 0),
-            ("5 120 60 60", 1),
+            ("6 410 50 200", 0),
+            ("6 410 200 50", 0),
             ("7 120 60 60", 1),
-            ("4 310 200 100", 1),
+            ("9 60000 100 100 9", 0),
             ]
 
     logger.info(f"{WHITE}Testing death conditions{RESET}")
