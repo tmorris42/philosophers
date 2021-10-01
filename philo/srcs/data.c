@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:19 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 17:46:09 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/01 13:40:46 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ int	data_free(t_data *data)
 		return (0);
 	if (data->locks_ready)
 		pthread_mutex_destroy(&data->log_lock);
-	if (data->locks_ready > 1)
-		pthread_mutex_destroy(&data->playing_lock);
 	i = 0;
 	while (data && i < data->num_of_philos)
 	{
@@ -31,7 +29,7 @@ int	data_free(t_data *data)
 			free(data->philos[i]);
 			data->philos[i] = NULL;
 		}
-		if (data->forks && data->locks_ready > i + 2)
+		if (data->forks && data->locks_ready > i + 1)
 			pthread_mutex_destroy(&data->forks[i]);
 		++i;
 	}
@@ -54,12 +52,6 @@ t_data	*data_init(void)
 	data->start_time = 0;
 	data->locks_ready = 0;
 	if (pthread_mutex_init(&data->log_lock, NULL))
-	{
-		data_free(data);
-		return (NULL);
-	}
-	++data->locks_ready;
-	if (pthread_mutex_init(&data->playing_lock, NULL))
 	{
 		data_free(data);
 		return (NULL);

@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:46 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 14:06:30 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/01 13:14:39 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,23 +30,31 @@ void	ft_usleep(t_philo *philo, long int delay)
 	long int	finish;
 
 	finish = ft_now() + delay;
-	while (get_playing(philo->data) && ft_now() < finish)
+	while (philo_get_alive(philo) && ft_now() < finish)
 	{
 		if (finish - ft_now() > 2)
 			usleep(SLEEP_INT);
 	}
 }
 
-void	ft_log(t_philo *philo, char *msg)
+int	ft_log(t_philo *philo, char *msg)
 {
+	long int		now;
 	long int		delta_time;
+	int				printed;
 
+	printed = 0;
+	now = ft_now();
 	pthread_mutex_lock(&(philo->data->log_lock));
-	if (get_playing(philo->data) && philo_get_alive(philo))
+	pthread_mutex_lock(&(philo->lock));
+	if (philo->alive)
 	{
-		delta_time = ft_now() - philo->data->start_time;
+		delta_time = now - philo->data->start_time;
 		printf("%.11ld", delta_time);
 		printf(" %d %s\n", philo->id + 1, msg);
+		printed = 1;
 	}
+	pthread_mutex_unlock(&(philo->lock));
 	pthread_mutex_unlock(&(philo->data->log_lock));
+	return (printed);
 }

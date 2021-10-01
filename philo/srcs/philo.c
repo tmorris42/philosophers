@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 18:44:44 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/01 13:00:20 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,18 @@ void	philo_eat(t_philo *philo)
 {
 	if (philo_set_time_of_last_meal(philo, ft_now()))
 	{
-		ft_log(philo, "is eating");
-		ft_usleep(philo, philo->data->time_to_eat);
-		philo_add_times_eaten(philo, 1);
+		if (ft_log(philo, "is eating"))
+		{
+			ft_usleep(philo, philo->data->time_to_eat);
+			philo_add_times_eaten(philo, 1);
+		}
 	}
 }
 
 void	philo_sleep(t_philo *philo)
 {
-	ft_log(philo, "is sleeping");
-	ft_usleep(philo, philo->data->time_to_sleep);
+	if (ft_log(philo, "is sleeping"))
+		ft_usleep(philo, philo->data->time_to_sleep);
 }
 
 void	*philo_start(void *ptr)
@@ -35,7 +37,7 @@ void	*philo_start(void *ptr)
 	philo = (t_philo *)ptr;
 	while (philo)
 	{
-		if (!get_playing(philo->data))
+		if (!philo_get_alive(philo))
 			break ;
 		if (try_to_take_forks(philo) < 0)
 			continue ;
