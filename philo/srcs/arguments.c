@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:13 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/01 14:23:08 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/01 16:16:31 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,25 +33,37 @@ int	parse_argument(char *arg)
 	return (value);
 }
 
+int	ft_error(char *msg)
+{
+	int	len;
+
+	len = 0;
+	while (msg && msg[len])
+		++len;
+	if (len)
+		write(2, msg, len);
+	return (-1);
+}
+
 int	get_settings(int argc, char **argv, t_data *data)
 {
 	int			i;
 	int			settings_array[5];
 
 	if (argc < 5 || argc > 6)
-		return (-1);
+		return (ft_error("Error: wrong number of arguments\n"));
 	settings_array[4] = -1;
 	i = 1;
 	while (argc > 1 && i < argc)
 	{
 		settings_array[i - 1] = parse_argument(argv[i]);
 		if (settings_array[i - 1] < 0)
-			return (-1);
+			return (ft_error("Error: arguments must be positive integers\n"));
 		++i;
 	}
 	data->num_of_philos = settings_array[0];
 	if (data->num_of_philos > 200)
-		return (-1);
+		return (ft_error("Error: number of philosophers must not exceed 200\n"));
 	data->time_to_die = settings_array[1];
 	data->time_to_eat = settings_array[2];
 	data->time_to_sleep = settings_array[3];
@@ -61,14 +73,9 @@ int	get_settings(int argc, char **argv, t_data *data)
 
 int	usage(t_data *data)
 {
-	int	i;
-
-	i = 50;
-	write(2, "Usage: ./philo number_of_philosophers time_to_die ", i);
-	i = 26;
-	write(2, "time_to_eat time_to_sleep ", i);
-	i = 44;
-	write(2, "[number_of_times_each_philosopher_must_eat]\n", i);
+	ft_error("Usage: ./philo <number_of_philosophers> <time_to_die> ");
+	ft_error("<time_to_eat> <time_to_sleep> ");
+	ft_error("[number_of_times_each_philosopher_must_eat]\n");
 	data_free(data);
 	return (-1);
 }
