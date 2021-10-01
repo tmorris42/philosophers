@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/01 13:00:20 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/01 14:01:21 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,23 @@
 
 void	philo_eat(t_philo *philo)
 {
-	if (philo_set_time_of_last_meal(philo, ft_now()))
+	long int		now;
+	long int		delta_time;
+
+	now = ft_now();
+	pthread_mutex_lock(&(philo->data->log_lock));
+	pthread_mutex_lock(&(philo->lock));
+	if (philo->alive)
 	{
-		if (ft_log(philo, "is eating"))
-		{
-			ft_usleep(philo, philo->data->time_to_eat);
-			philo_add_times_eaten(philo, 1);
-		}
+		philo->time_of_last_meal = now;
+		delta_time = now - philo->data->start_time;
+		printf("%.11ld", delta_time);
+		printf(" %d %s\n", philo->id + 1, "is eating");
+		++philo->times_eaten;
 	}
+	pthread_mutex_unlock(&(philo->lock));
+	pthread_mutex_unlock(&(philo->data->log_lock));
+	ft_usleep(philo, philo->data->time_to_eat);
 }
 
 void	philo_sleep(t_philo *philo)
