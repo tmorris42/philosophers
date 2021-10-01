@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:13 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 17:47:57 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/01 14:23:08 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ int	get_settings(int argc, char **argv, t_data *data)
 		++i;
 	}
 	data->num_of_philos = settings_array[0];
+	if (data->num_of_philos > 200)
+		return (-1);
 	data->time_to_die = settings_array[1];
 	data->time_to_eat = settings_array[2];
 	data->time_to_sleep = settings_array[3];
