@@ -78,7 +78,7 @@ def test_dying_philos():
             ("3 610 200 50 5", 0),
             ("3 610 200 200 5", 0),
             ("3 610 200 300 5", 0),
-            ("./philo 4 1 200 200", 1), #Check death time
+            ("4 1 200 200", 1), #Check death time
             ("4 310 200 100", 1), #from correction
             ("4 410 200 200", 0), #from correct?
             ("5 120 60 60", 1),
