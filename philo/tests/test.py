@@ -18,6 +18,7 @@ def test_error_codes():
             ("./philo 2 2 3 4", 0),
             ("./philo 2 2 3 4 5", 0),
             ("./philo 0 2 3 4 5", 0),
+            ("./philo 200 3 4 6", 0),
             ("./philo", -1),
             ("./philo a", -1),
             ("./philo    ", -1),
@@ -38,6 +39,7 @@ def test_error_codes():
             ("./philo \"\" 3 4 5 6", -1),
             ("./philo 7 \"\" 3 4 6", -1),
             ("./philo 7 3 4 6 \"\"", -1),
+            ("./philo 201 3 4 6", -1),
             ]
 
     logger.info(f"{WHITE}Testing error codes{RESET}")
