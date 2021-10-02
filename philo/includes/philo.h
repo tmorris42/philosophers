@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:26:40 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 18:16:51 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/02 18:44:58 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,6 @@
 # include <sys/time.h>
 # include <unistd.h>
 # include <pthread.h>
-# ifndef SLEEP_INT
-#  define SLEEP_INT 500
-# endif
 
 typedef struct s_philo
 {

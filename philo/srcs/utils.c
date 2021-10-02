@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:46 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 18:29:19 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/02 18:44:43 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,7 @@ void	ft_usleep_until(t_philo *philo, long int finish)
 	remaining = finish - ft_now();
 	while (philo_get_alive(philo) && remaining > 0)
 	{
-		if (remaining > SLEEP_INT)
-			usleep(remaining / 2);
-		else
-			usleep(1);
+		usleep(remaining / 2);
 		remaining = finish - ft_now();
 	}
 }
