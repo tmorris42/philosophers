@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 15:21:36 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/02 17:32:09 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,8 +92,7 @@ int	check_philo_status(t_philo *philo, t_data *data)
 		delta_time = ft_now() - philo->data->start_time;
 		pthread_mutex_lock(&(philo->data->log_lock));
 		kill_all_philos(data);
-		printf("%.11ld", delta_time);
-		printf(" %d died\n", philo->id + 1);
+		ft_write_log(delta_time, philo->id, "died");
 		data->playing = 0;
 		pthread_mutex_unlock(&(philo->data->log_lock));
 	}
