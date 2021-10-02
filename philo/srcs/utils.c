@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:46 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 17:32:02 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/02 17:44:38 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,11 @@ void	ft_usleep(t_philo *philo, long int delay)
 	long int	finish;
 
 	finish = ft_now() + delay;
+	if (finish < 0)
+		return ;
 	while (philo_get_alive(philo) && ft_now() < finish)
 	{
-		if (finish - ft_now() > 2)
+		if (finish - ft_now() > 5)
 			usleep(SLEEP_INT);
 	}
 }

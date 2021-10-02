@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:25 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/01 13:02:04 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/02 17:47:38 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,7 @@ int	try_to_take_forks(t_philo *philo)
 	if (!take_fork(philo, philo->left_fork))
 		return (-1);
 	if (philo->left_fork == philo->right_fork)
-		while (philo_get_alive(philo))
-			usleep(1);
+		ft_usleep(philo, 2 * philo->data->time_to_die);
 	else if (take_fork(philo, philo->right_fork))
 		return (0);
 	drop_fork(philo->left_fork);
