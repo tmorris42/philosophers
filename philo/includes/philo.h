@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:26:40 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 17:18:08 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/02 18:16:51 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <unistd.h>
 # include <pthread.h>
 # ifndef SLEEP_INT
-#  define SLEEP_INT 1
+#  define SLEEP_INT 500
 # endif
 
 typedef struct s_philo
@@ -55,6 +55,7 @@ int			usage(t_data *data);
 int			data_free(t_data *data_ptr);
 int			is_starving(t_philo *philo);
 void		philo_eat(t_philo *philo);
+void		ft_usleep_until(t_philo *philo, long int finish);
 void		ft_usleep(t_philo *philo, long int delay);
 void		ft_write_log(long int delta_time, int id, char *msg);
 int			ft_log(t_philo *philo, char *msg);

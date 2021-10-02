@@ -18,6 +18,7 @@ SRCS = philo.c \
 	   arguments.c main.c data.c \
 	   utils.c forks.c manager.c \
 	   rejoin_threads.c \
+	   ft_log.c \
 	   accessors/philo_alive.c \
 	   accessors/philo_time_of_last_meal.c \
 	   accessors/philo_times_eaten.c
