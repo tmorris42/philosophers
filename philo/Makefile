@@ -50,6 +50,7 @@ endif
 
 clean:
 	rm -f $(OBJS)
+	rm -rf $(OBJ_DIR);
 
 fclean: clean
 	rm -f $(NAME)
