@@ -1,5 +1,6 @@
 UNAME_S := ${shell uname}
 
+CC := clang
 FLAGS := -Wall -Wextra -Werror
 DEBUG_FLAGS := $(FLAGS) -g3 -fsanitize=thread
 ifeq ($(DEBUG), yes)
@@ -36,19 +37,15 @@ endif
 
 $(OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(HEADERS) $(MAKEFILE)
 	@mkdir -p $(dir $@)
-ifeq ($(UNAME_S),Linux)
-	gcc -c $(FLAGS) -I$(INCLUDES_DIR) $< -o $@ -lpthread
-endif
-ifeq ($(UNAME_S),Darwin)
-	gcc -c $(FLAGS) -I$(INCLUDES_DIR)  $< -o $@
-endif
+	$(CC) -c $(FLAGS) -I$(INCLUDES_DIR) $< -o $@
+
 
 $(NAME): $(OBJS)
 ifeq ($(UNAME_S),Linux)
-	gcc $(FLAGS) $(OBJS) -o $(NAME) -lpthread
+	$(CC) $(FLAGS) $(OBJS) -o $(NAME) -lpthread
 endif
 ifeq ($(UNAME_S),Darwin)
-	gcc $(FLAGS) $(OBJS) -o $(NAME)
+	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
 endif
 
 clean:
