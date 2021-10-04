@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:38 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 17:32:09 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/04 10:08:25 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,5 +121,6 @@ int	check_end_conditions(t_data *data)
 		pthread_mutex_unlock(&(data->log_lock));
 		data->playing = 0;
 	}
+	usleep(SLEEP_INT);
 	return (0);
 }
