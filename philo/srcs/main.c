@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:33 by tmorris           #+#    #+#             */
-/*   Updated: 2021/09/30 17:50:59 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/01 12:46:45 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	main(int argc, char **argv)
 		return (data_free(data));
 	if (data->num_of_philos % 2 && create_threads(data, 3) < 0)
 		return (data_free(data));
-	while (get_playing(data))
+	while (data->playing)
 		check_end_conditions(data);
 	rejoin_threads(data->philos, data->num_of_philos - 1);
 	data_free(data);
