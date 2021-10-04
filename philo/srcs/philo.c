@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/02 13:25:04 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 18:11:13 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/04 10:41:03 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,16 @@ void	philo_eat(t_philo *philo)
 	now = ft_now();
 	pthread_mutex_lock(&(philo->data->log_lock));
 	pthread_mutex_lock(&(philo->lock));
-	if (philo->alive)
+	if (philo->alive && now - philo->time_of_last_meal
+		< philo->data->time_to_die)
 	{
 		philo->time_of_last_meal = now;
 		delta_time = now - philo->data->start_time;
 		ft_write_log(delta_time, philo->id, "is eating");
 		++philo->times_eaten;
 	}
+	else
+		philo->alive = 0;
 	pthread_mutex_unlock(&(philo->lock));
 	pthread_mutex_unlock(&(philo->data->log_lock));
 	ft_usleep(philo, philo->data->time_to_eat);

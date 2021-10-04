@@ -6,7 +6,7 @@
 /*   By: tmorris <tmorris@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/02 18:13:50 by tmorris           #+#    #+#             */
-/*   Updated: 2021/10/02 18:14:45 by tmorris          ###   ########.fr       */
+/*   Updated: 2021/10/04 10:36:18 by tmorris          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,11 @@ int	ft_log(t_philo *philo, char *msg)
 	int				printed;
 
 	printed = 0;
-	now = ft_now();
 	pthread_mutex_lock(&(philo->data->log_lock));
 	pthread_mutex_lock(&(philo->lock));
 	if (philo->alive)
 	{
+		now = ft_now();
 		delta_time = now - philo->data->start_time;
 		ft_write_log(delta_time, philo->id, msg);
 		printed = 1;
