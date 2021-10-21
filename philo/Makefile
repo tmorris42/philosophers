@@ -1,4 +1,7 @@
 UNAME_S := ${shell uname}
+ifndef PYTHON
+PYTHON = python3
+endif
 
 CC := clang
 FLAGS := -Wall -Wextra -Werror
@@ -61,6 +64,6 @@ norm:
 	norminette $(SRCS)
 
 test: $(NAME)
-	@python3.7 tests/test.py
+	@$(PYTHON) tests/test.py
 
 .PHONY: all clean fclean re test norm
